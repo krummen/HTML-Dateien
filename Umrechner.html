@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einheiten-Umrechner für schlaue Füchse!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+            background-color: #e0f7fa; /* Helles Himmelblau */
+            color: #004d40; /* Dunkles Türkis */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 850px; /* Etwas breiter für die neuen Spalten */
+            width: 95%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #d81b60; /* Pink */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h1 .emoji { font-size: 1em; }
+
+        .auswahl-bereich, .eingabe-bereich, .umrechnungs-bereich, .ergebnis-bereich {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f1f8e9; /* Sehr helles Grün */
+            border-radius: 10px;
+            border: 2px dashed #8bc34a; /* Hellgrün */
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #00796b; /* Türkis */
+        }
+
+        input[type="number"], select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #a5d6a7; /* Hellgrün */
+            font-size: 1.1em;
+            margin: 5px;
+            min-width: 100px;
+        }
+        input[type="number"] {
+            width: 120px;
+        }
+
+        .button {
+            background-color: #ff8f00; /* Orange */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+        .button.active {
+            background-color: #ff6f00; /* Dunkleres Orange für aktiven Button */
+            box-shadow: 0 0 10px #ffc107;
+        }
+        .button:hover:not(:disabled) {
+            background-color: #ff6f00; /* Dunkleres Orange */
+        }
+        .button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        table.einheitentabelle {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 2px;
+            margin: 25px 0;
+            font-size: 1.0em; /* Ggf. Schriftgröße leicht reduzieren, wenn es zu breit wird */
+        }
+
+        table.einheitentabelle th, table.einheitentabelle td {
+            border: 1px solid transparent;
+            padding: 10px 6px; /* Standard-Padding leicht reduziert */
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            border-radius: 5px;
+            height: 50px;
+            transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
+        }
+
+        /* Längen-Header */
+        .th-km, .th-km-z, .th-km-e { background-color: #f44336; color: white; }
+        .th-m-h, .th-m-z, .th-m-e { background-color: #4caf50; color: white; }
+        .th-dm { background-color: #ffc107; color: #424242; }
+        .th-cm { background-color: #9c27b0; color: white; }
+        .th-mm { background-color: #03a9f4; color: white; }
+
+        /* Gewichts-Header */
+        .th-t, .th-t-z, .th-t-e { background-color: #795548; color: white; } /* Braun */
+        .th-kg-h, .th-kg-z, .th-kg-e { background-color: #607d8b; color: white; } /* Blau-Grau */
+        .th-g-h, .th-g-z, .th-g-e { background-color: #ff9800; color: white; } /* Orange */
+        
+        .th-luecke { 
+            background-color: #f5f5f5; 
+            color: #bdbdbd; 
+            font-style: italic; 
+            font-size:0.8em; 
+            padding: 10px 1px !important; 
+            width: 10px; 
+        }
+
+
+        .stellenwert {
+            display: block;
+            font-size: 0.7em; /* Etwas kleiner für mehr Platz */
+            font-weight: normal;
+            color: rgba(255,255,255,0.8);
+        }
+        .th-dm .stellenwert, .th-mm .stellenwert { color: rgba(0,0,0,0.6); }
+
+
+        table.einheitentabelle td {
+            background-color: #e8f5e9;
+            font-weight: bold;
+            font-size: 1.2em; /* Ggf. Schriftgröße leicht reduzieren */
+        }
+        td[id*="-luecke"] {
+            background-color: #fafafa; 
+            font-style: italic;
+            padding: 10px 1px !important; 
+            width: 10px; 
+            border-left: 1px dotted #ccc; 
+            border-right: 1px dotted #ccc; 
+        }
+        
+        .td-eingetragen {
+            background-color: #fff59d !important;
+            transform: scale(1.05); /* Skalierung leicht reduziert */
+            border-color: #fbc02d;
+        }
+        .td-komma-davor { border-right: 3px solid #d81b60 !important; }
+        .td-zielwert {
+            background-color: #c5e1a5 !important;
+        }
+        .td-zielwert.td-komma-davor {
+             border-right: 3px solid red !important;
+             border-top: 2px solid #7cb342;
+             border-bottom: 2px solid #7cb342;
+             border-left: 2px solid #7cb342;
+        }
+         .td-zielwert:not(.td-komma-davor):not([id*="-luecke"]) {
+            border: 2px solid #7cb342;
+        }
+
+        .td-null {
+            color: #9e9e9e;
+            font-weight: normal;
+        }
+
+        .erklaerung-box {
+            background-color: #fff9c4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 2px dotted #ffeb3b;
+            font-size: 1.1em;
+            text-align: left;
+            line-height: 1.8;
+        }
+        .erklaerung-box strong { color: #f57f17; }
+        .hidden { display: none; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><span class="emoji">📏</span> Einheiten-Umrechner <span class="emoji">⚖️</span></h1>
+        <p style="font-size: 1.2em; margin-bottom: 20px;">Lerne spielend, Längen und Gewichte umzurechnen!</p>
+
+        <div class="auswahl-bereich">
+            <h2>Was möchtest du umrechnen?</h2>
+            <button class="button" id="btn-laenge" onclick="initUmrechner('laenge')">Längen (km, m, ...)</button>
+            <button class="button" id="btn-gewicht" onclick="initUmrechner('gewicht')">Gewichte (t, kg, g, ...)</button>
+        </div>
+
+        <!-- Umrechnungsbereich Längen -->
+        <div id="umrechner-laenge" class="umrechnungs-bereich hidden">
+            <h2>Längen umrechnen</h2>
+            <div class="eingabe-bereich">
+                <label for="wertLaenge">Wert:</label>
+                <input type="number" id="wertLaenge" step="any" placeholder="z.B. 12.5">
+                
+                <label for="ausgangsEinheitLaenge">Von:</label>
+                <select id="ausgangsEinheitLaenge">
+                    <option value="km">km (Kilometer)</option>
+                    <option value="m" selected>m (Meter)</option>
+                    <option value="dm">dm (Dezimeter)</option>
+                    <option value="cm">cm (Zentimeter)</option>
+                    <option value="mm">mm (Millimeter)</option>
+                </select>
+                
+                <label for="zielEinheitLaenge">Nach:</label>
+                <select id="zielEinheitLaenge">
+                    <option value="km">km (Kilometer)</option>
+                    <option value="m">m (Meter)</option>
+                    <option value="dm">dm (Dezimeter)</option>
+                    <option value="cm" selected>cm (Zentimeter)</option>
+                    <option value="mm">mm (Millimeter)</option>
+                </select>
+                <button class="button" onclick="starteUmrechnung()">Umrechnen!</button>
+            </div>
+
+            <table class="einheitentabelle" id="laengen-tabelle">
+                <thead>
+                    <tr>
+                        <th class="th-km">km <span class="stellenwert">(Z)</span></th>
+                        <th class="th-km">km <span class="stellenwert">(E)</span></th>
+                        <th class="th-m-h">m <span class="stellenwert">(H)</span></th>
+                        <th class="th-m-z">m <span class="stellenwert">(Z)</span></th>
+                        <th class="th-m-e">m <span class="stellenwert">(E)</span></th>
+                        <th class="th-dm">dm <span class="stellenwert">(E)</span></th>
+                        <th class="th-cm">cm <span class="stellenwert">(E)</span></th>
+                        <th class="th-mm">mm <span class="stellenwert">(E)</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="row1-laenge-cell-km-Z"></td>
+                        <td id="row1-laenge-cell-km-E"></td>
+                        <td id="row1-laenge-cell-m-H"></td>
+                        <td id="row1-laenge-cell-m-Z"></td>
+                        <td id="row1-laenge-cell-m-E"></td>
+                        <td id="row1-laenge-cell-dm-E"></td>
+                        <td id="row1-laenge-cell-cm-E"></td>
+                        <td id="row1-laenge-cell-mm-E"></td>
+                    </tr>
+                    <tr>
+                        <td id="row2-laenge-cell-km-Z"></td>
+                        <td id="row2-laenge-cell-km-E"></td>
+                        <td id="row2-laenge-cell-m-H"></td>
+                        <td id="row2-laenge-cell-m-Z"></td>
+                        <td id="row2-laenge-cell-m-E"></td>
+                        <td id="row2-laenge-cell-dm-E"></td>
+                        <td id="row2-laenge-cell-cm-E"></td>
+                        <td id="row2-laenge-cell-mm-E"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="ergebnis-bereich hidden" id="ergebnisLaenge">
+                <h3>Dein Ergebnis:</h3>
+                <p style="font-size: 1.5em; font-weight: bold;" id="ergebnisTextLaenge"></p>
+                <div class="erklaerung-box" id="erklaerungTextLaenge"></div>
+            </div>
+        </div>
+
+        <!-- Umrechnungsbereich Gewichte -->
+        <div id="umrechner-gewicht" class="umrechnungs-bereich hidden">
+            <h2>Gewichte umrechnen</h2>
+            <div class="eingabe-bereich">
+                <label for="wertGewicht">Wert:</label>
+                <input type="number" id="wertGewicht" step="any" placeholder="z.B. 12.5">
+                
+                <label for="ausgangsEinheitGewicht">Von:</label>
+                <select id="ausgangsEinheitGewicht">
+                    <option value="t">t (Tonne)</option>
+                    <option value="kg" selected>kg (Kilogramm)</option>
+                    <option value="g">g (Gramm)</option>
+                </select>
+                
+                <label for="zielEinheitGewicht">Nach:</label>
+                <select id="zielEinheitGewicht">
+                    <option value="t">t (Tonne)</option>
+                    <option value="kg">kg (Kilogramm)</option>
+                    <option value="g" selected>g (Gramm)</option>
+                </select>
+                <button class="button" onclick="starteUmrechnung()">Umrechnen!</button>
+            </div>
+
+            <table class="einheitentabelle" id="gewichts-tabelle">
+                <thead>
+                    <tr>
+                        <th class="th-t">t<span class="stellenwert">(Z)</span></th>
+                        <th class="th-t">t<span class="stellenwert">(E)</span></th>
+                        <th class="th-luecke"></th> 
+                        <th class="th-kg-h">kg<span class="stellenwert">(H)</span></th>
+                        <th class="th-kg-z">kg<span class="stellenwert">(Z)</span></th>
+                        <th class="th-kg-e">kg<span class="stellenwert">(E)</span></th>
+                        <th class="th-luecke"></th> 
+                        <th class="th-g-h">g<span class="stellenwert">(H)</span></th>
+                        <th class="th-g-z">g<span class="stellenwert">(Z)</span></th>
+                        <th class="th-g-e">g<span class="stellenwert">(E)</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                     <tr> 
+                        <td id="row1-gewicht-cell-t-Z"></td>
+                        <td id="row1-gewicht-cell-t-E"></td>
+                        <td id="row1-gewicht-cell-t-kg-luecke"></td>
+                        <td id="row1-gewicht-cell-kg-H"></td>
+                        <td id="row1-gewicht-cell-kg-Z"></td>
+                        <td id="row1-gewicht-cell-kg-E"></td>
+                        <td id="row1-gewicht-cell-kg-g-luecke"></td>
+                        <td id="row1-gewicht-cell-g-H"></td>
+                        <td id="row1-gewicht-cell-g-Z"></td>
+                        <td id="row1-gewicht-cell-g-E"></td>
+                    </tr>
+                    <tr> 
+                        <td id="row2-gewicht-cell-t-Z"></td>
+                        <td id="row2-gewicht-cell-t-E"></td>
+                        <td id="row2-gewicht-cell-t-kg-luecke"></td>
+                        <td id="row2-gewicht-cell-kg-H"></td>
+                        <td id="row2-gewicht-cell-kg-Z"></td>
+                        <td id="row2-gewicht-cell-kg-E"></td>
+                        <td id="row2-gewicht-cell-kg-g-luecke"></td>
+                        <td id="row2-gewicht-cell-g-H"></td>
+                        <td id="row2-gewicht-cell-g-Z"></td>
+                        <td id="row2-gewicht-cell-g-E"></td>
+                    </tr>
+                </tbody>
+            </table>
+             <div class="ergebnis-bereich hidden" id="ergebnisGewicht">
+                <h3>Dein Ergebnis:</h3>
+                <p style="font-size: 1.5em; font-weight: bold;" id="ergebnisTextGewicht"></p>
+                <div class="erklaerung-box" id="erklaerungTextGewicht"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const einheitenConfig = {
+            laenge: {
+                km: { faktor: 1000000, zellenIdBasis: 'cell-km-E', name: "Kilometer" },
+                m:  { faktor: 1000,    zellenIdBasis: 'cell-m-E',  name: "Meter" },
+                dm: { faktor: 100,     zellenIdBasis: 'cell-dm-E', name: "Dezimeter" },
+                cm: { faktor: 10,      zellenIdBasis: 'cell-cm-E', name: "Zentimeter" },
+                mm: { faktor: 1,       zellenIdBasis: 'cell-mm-E', name: "Millimeter" } 
+            },
+            gewicht: {
+                t:  { faktor: 1000000, zellenIdBasis: 'cell-t-E',  name: "Tonne" },
+                kg: { faktor: 1000,    zellenIdBasis: 'cell-kg-E', name: "Kilogramm" },
+                g:  { faktor: 1,       zellenIdBasis: 'cell-g-E',  name: "Gramm" } 
+            }
+        };
+
+        const spaltenIdsLaenge = ['cell-km-Z', 'cell-km-E', 'cell-m-H', 'cell-m-Z', 'cell-m-E', 'cell-dm-E', 'cell-cm-E', 'cell-mm-E'];
+        const spaltenIdsGewicht = ['cell-t-Z', 'cell-t-E', 'cell-t-kg-luecke', 'cell-kg-H', 'cell-kg-Z', 'cell-kg-E', 'cell-kg-g-luecke', 'cell-g-H', 'cell-g-Z', 'cell-g-E'];
+        
+        let aktuellerUmrechnerTyp = null;
+
+        function initUmrechner(typ) {
+            aktuellerUmrechnerTyp = typ;
+            document.getElementById('umrechner-laenge').classList.add('hidden');
+            document.getElementById('umrechner-gewicht').classList.add('hidden');
+            document.getElementById('btn-laenge').classList.remove('active');
+            document.getElementById('btn-gewicht').classList.remove('active');
+
+            if (typ === 'laenge') {
+                document.getElementById('umrechner-laenge').classList.remove('hidden');
+                document.getElementById('btn-laenge').classList.add('active');
+            } else if (typ === 'gewicht') {
+                document.getElementById('umrechner-gewicht').classList.remove('hidden');
+                document.getElementById('btn-gewicht').classList.add('active');
+            }
+            resetTabelle(); 
+            document.getElementById(typ === 'laenge' ? 'ergebnisLaenge' : 'ergebnisGewicht').classList.add('hidden');
+        }
+
+        function resetTabelle() {
+            if (!aktuellerUmrechnerTyp) return;
+
+            const rowPrefixes = ['row1-', 'row2-'];
+            const spaltenIdsCurrent = (aktuellerUmrechnerTyp === 'laenge') ? spaltenIdsLaenge : spaltenIdsGewicht;
+            
+            rowPrefixes.forEach(rowPrefix => {
+                spaltenIdsCurrent.forEach(idBasis => {
+                    const zelle = document.getElementById(rowPrefix + aktuellerUmrechnerTyp + '-' + idBasis);
+                    if (zelle) {
+                        zelle.textContent = ''; 
+                        zelle.className = ''; 
+                    }
+                });
+            });
+            const ergebnisTextEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'ergebnisTextLaenge' : 'ergebnisTextGewicht');
+            const erklaerungTextEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'erklaerungTextLaenge' : 'erklaerungTextGewicht');
+            if(ergebnisTextEl) ergebnisTextEl.textContent = '';
+            if(erklaerungTextEl) erklaerungTextEl.innerHTML = '';
+        }
+        
+        async function zeigeZahlInZelle(zelleId, zahl, istNull = false, istZielDigit = false, delay = 120) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const zelle = document.getElementById(zelleId);
+                    if (zelle && !zelleId.includes('-luecke')) { 
+                        zelle.textContent = zahl;
+                        zelle.classList.add('td-eingetragen');
+                        if (istNull) zelle.classList.add('td-null');
+                        if (istZielDigit) zelle.classList.add('td-zielwert');
+                        setTimeout(() => zelle.classList.remove('td-eingetragen'), delay * 2.5); 
+                    }
+                    resolve();
+                }, delay);
+            });
+        }
+
+        async function populateRowWithValue(rowPrefix, wertString, einheitKey, istZielReihe) {
+            const config = einheitenConfig[aktuellerUmrechnerTyp];
+            const spalten = (aktuellerUmrechnerTyp === 'laenge') ? spaltenIdsLaenge : spaltenIdsGewicht;
+            
+            let [ganzzahlTeil, nachkommaTeilStr] = wertString.split('.');
+            nachkommaTeilStr = nachkommaTeilStr || "";
+            if (ganzzahlTeil === "" && nachkommaTeilStr !== "") ganzzahlTeil = "0"; // für ".5" -> "0.5"
+            else if (ganzzahlTeil === "") ganzzahlTeil = "0"; // für "" -> "0"
+
+            const einerZellenIdBasis = config[einheitKey].zellenIdBasis;
+            let aktuelleSpaltenIndex = spalten.indexOf(einerZellenIdBasis);
+
+            if (aktuelleSpaltenIndex === -1) {
+                 console.error("Fehler: Einer-Zelle für Einheit nicht gefunden:", einerZellenIdBasis, "in Spalten:", spalten, "Typ:", aktuellerUmrechnerTyp);
+                 return;
+            }
+            
+            const zellenIdPrefix = rowPrefix + aktuellerUmrechnerTyp + '-';
+
+            const einerZiffer = ganzzahlTeil.slice(-1) || "0";
+            await zeigeZahlInZelle(zellenIdPrefix + spalten[aktuelleSpaltenIndex], einerZiffer, false, istZielReihe);
+            
+            let tempEintragsIndex = aktuelleSpaltenIndex;
+            for (let i = ganzzahlTeil.length - 2; i >= 0; i--) {
+                do { 
+                    tempEintragsIndex--;
+                } while (tempEintragsIndex >= 0 && spalten[tempEintragsIndex].includes('-luecke'));
+                
+                if (tempEintragsIndex < 0) { 
+                    console.warn("Zahl zu groß für Tabellendarstellung links:", ganzzahlTeil);
+                    break; 
+                }
+                await zeigeZahlInZelle(zellenIdPrefix + spalten[tempEintragsIndex], ganzzahlTeil[i], false, istZielReihe);
+            }
+
+            tempEintragsIndex = aktuelleSpaltenIndex; 
+            for (let i = 0; i < nachkommaTeilStr.length; i++) {
+                do { 
+                    tempEintragsIndex++;
+                } while (tempEintragsIndex < spalten.length && spalten[tempEintragsIndex].includes('-luecke'));
+
+                if (tempEintragsIndex >= spalten.length) { 
+                     console.warn("Nachkommastellen zu lang für Tabellendarstellung rechts:", nachkommaTeilStr);
+                    break;
+                }
+                await zeigeZahlInZelle(zellenIdPrefix + spalten[tempEintragsIndex], nachkommaTeilStr[i], false, istZielReihe);
+            }
+            
+            if (istZielReihe) {
+                let [zielGanz, zielNach] = wertString.split('.');
+                zielNach = zielNach || "";
+                if (zielGanz === "" && zielNach !== "") zielGanz = "0";
+                else if (zielGanz === "") zielGanz = "0";
+
+
+                let hoechsteGanzzahlStelleIdx = aktuelleSpaltenIndex;
+                for (let k=0; k < zielGanz.length-1; k++) {
+                     do { hoechsteGanzzahlStelleIdx--; } while (hoechsteGanzzahlStelleIdx >=0 && spalten[hoechsteGanzzahlStelleIdx].includes('-luecke'));
+                     if (hoechsteGanzzahlStelleIdx < 0) break;
+                }
+                if (hoechsteGanzzahlStelleIdx <0) hoechsteGanzzahlStelleIdx = 0; 
+
+                for (let k = hoechsteGanzzahlStelleIdx; k <= aktuelleSpaltenIndex; k++) {
+                    if(spalten[k] && !spalten[k].includes('-luecke') && document.getElementById(zellenIdPrefix + spalten[k]).textContent === '') {
+                        await zeigeZahlInZelle(zellenIdPrefix + spalten[k], '0', true, true);
+                    }
+                }
+                
+                let niedrigsteNachkommaStelleIdx = aktuelleSpaltenIndex;
+                 for (let k=0; k < zielNach.length; k++) {
+                     do { niedrigsteNachkommaStelleIdx++; } while (niedrigsteNachkommaStelleIdx < spalten.length && spalten[niedrigsteNachkommaStelleIdx].includes('-luecke'));
+                     if (niedrigsteNachkommaStelleIdx >= spalten.length) break;
+                }
+                 if (niedrigsteNachkommaStelleIdx >= spalten.length) niedrigsteNachkommaStelleIdx = spalten.length -1;
+
+                 for (let k = aktuelleSpaltenIndex + 1; k <= niedrigsteNachkommaStelleIdx; k++) {
+                    if(spalten[k] && !spalten[k].includes('-luecke') && document.getElementById(zellenIdPrefix + spalten[k]).textContent === '') {
+                        await zeigeZahlInZelle(zellenIdPrefix + spalten[k], '0', true, true);
+                    }
+                }
+            }
+        }
+        
+        function countDecimals(valueStr) {
+            if (String(valueStr).indexOf('e') !== -1 || String(valueStr).indexOf('E') !== -1) { // Exponential notation
+                 const parts = String(valueStr).toLowerCase().split('e');
+                 let count = 0;
+                 if (parts[1]) {
+                    const exp = parseInt(parts[1], 10);
+                    if (parts[0].includes('.')) {
+                       count = parts[0].split('.')[1].length - exp;
+                    } else {
+                       count = -exp;
+                    }
+                 } else if (parts[0].includes('.')) {
+                    count = parts[0].split('.')[1].length;
+                 }
+                 return count > 0 ? count : 0;
+            }
+            if (String(valueStr).indexOf('.') === -1) return 0;
+            return String(valueStr).split('.')[1].length;
+        }
+
+
+        async function starteUmrechnung() {
+            if (!aktuellerUmrechnerTyp) {
+                alert("Bitte wähle zuerst aus, ob du Längen oder Gewichte umrechnen möchtest.");
+                return;
+            }
+            resetTabelle();
+            
+            const wertInputEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'wertLaenge' : 'wertGewicht');
+            const ausgangsEinheitEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'ausgangsEinheitLaenge' : 'ausgangsEinheitGewicht');
+            const zielEinheitEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'zielEinheitLaenge' : 'zielEinheitGewicht');
+            const ergebnisDiv = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'ergebnisLaenge' : 'ergebnisGewicht');
+            const ergebnisTextEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'ergebnisTextLaenge' : 'ergebnisTextGewicht');
+            const erklaerungTextEl = document.getElementById(aktuellerUmrechnerTyp === 'laenge' ? 'erklaerungTextLaenge' : 'erklaerungTextGewicht');
+
+            ergebnisDiv.classList.add('hidden');
+
+            const wertInputStr = wertInputEl.value.replace(',', '.'); // Komma durch Punkt ersetzen
+            const wertInputFloat = parseFloat(wertInputStr); 
+            
+            const ausgangsEinheitKey = ausgangsEinheitEl.value;
+            const zielEinheitKey = zielEinheitEl.value;
+            
+            const currentConfig = einheitenConfig[aktuellerUmrechnerTyp];
+
+            if (isNaN(wertInputFloat)) {
+                alert("Bitte gib einen gültigen Zahlenwert ein.");
+                return;
+            }
+
+            let wertInZielEinheitStr;
+
+            if (typeof BigInt !== "undefined") {
+                try {
+                    const eingabeDecimals = countDecimals(wertInputStr);
+                    const inputScale = BigInt(Math.pow(10, eingabeDecimals));
+                    
+                    // Eingabe zu BigInt skalieren: "12.34" -> 1234n, inputScale = 100n
+                    // "0.1" -> 1n, inputScale = 10n
+                    // "5" -> 5n, inputScale = 1n
+                    let inputValueScaledStr = wertInputStr.replace('.', '');
+                    if (wertInputStr.startsWith('.')) inputValueScaledStr = wertInputStr.substring(1); // ".5" -> "5"
+                    if (wertInputStr.startsWith('-.')) inputValueScaledStr = "-" + wertInputStr.substring(2); // "-.5" -> "-5"
+
+
+                    // Wenn wertInputStr z.B. "0.05" ist, wird replace "." zu "005". BigInt("005") ist 5n.
+                    // Wenn wertInputStr "12.00" ist, wird replace "." zu "1200". BigInt("1200") ist 1200n.
+                    // Wenn wertInputStr nur "12" ist, gibt es keinen Punkt.
+                    // Korrekte Skalierung:
+                    let tempWertBigInt;
+                    if (wertInputStr.includes('.')) {
+                        tempWertBigInt = BigInt(wertInputStr.replace('.', ''));
+                    } else {
+                        // Wenn keine Dezimalstellen, multipliziere mit inputScale, um Konsistenz zu wahren
+                        // Dies ist wichtig, damit die Division durch inputScale am Ende korrekt funktioniert.
+                        tempWertBigInt = BigInt(wertInputStr) * inputScale; 
+                    }
+
+
+                    const wertInKleinsterEinheitSkaliert = tempWertBigInt * BigInt(currentConfig[ausgangsEinheitKey].faktor);
+                    const zielFaktorBigInt = BigInt(currentConfig[zielEinheitKey].faktor);
+                    let wertInZielEinheitSkaliertBigInt = wertInKleinsterEinheitSkaliert / zielFaktorBigInt;
+
+                    // Ergebnis zurückskalieren
+                    // Ist das Ergebnis negativ?
+                    const istNegativ = wertInZielEinheitSkaliertBigInt < 0n;
+                    if(istNegativ) wertInZielEinheitSkaliertBigInt *= -1n; // Vorzeichen für String-Manipulation entfernen
+
+                    let ganzzahlTeil = wertInZielEinheitSkaliertBigInt / inputScale;
+                    let nachkommaTeil = wertInZielEinheitSkaliertBigInt % inputScale;
+
+                    wertInZielEinheitStr = (istNegativ ? "-" : "") + ganzzahlTeil.toString();
+                    if (eingabeDecimals > 0 || nachkommaTeil > 0n) { // Nur Punkt hinzufügen, wenn nötig
+                        // Nachkommateil auf die richtige Länge bringen (führende Nullen)
+                        let nachkommaStr = nachkommaTeil.toString().padStart(eingabeDecimals, '0');
+                        // Entferne überflüssige Nullen am Ende des Nachkommateils, aber nur, wenn es welche gibt.
+                        // Diese Logik ist wichtig, wenn z.B. 10.00 mm / 10 = 1.00 cm gewünscht ist, aber nicht 1.0 cm
+                        // Für diesen Umrechner ist es oft besser, die Nullen zu behalten, die durch die Skalierung entstehen.
+                        // Finden wir die tatsächliche Anzahl der Nachkommastellen, die das Ergebnis haben sollte:
+                        const faktorDiffExponent = Math.log10(currentConfig[ausgangsEinheitKey].faktor / currentConfig[zielEinheitKey].faktor);
+                        const zielDecimals = Math.max(0, eingabeDecimals + Math.round(faktorDiffExponent * 1000)/1000 ); // Runde um Fließkommafehler im Exponenten zu vermeiden
+
+                        if (nachkommaStr.length > zielDecimals) {
+                           // nachkommaStr = nachkommaStr.substring(0, zielDecimals); // Kürzen, wenn zu lang
+                        }
+                        // nachkommaStr = nachkommaStr.replace(/0+$/, ""); // Entferne Nullen am Ende
+                        
+                        if (nachkommaStr.length > 0) {
+                             wertInZielEinheitStr += "." + nachkommaStr;
+                        } else if (wertInZielEinheitStr.endsWith('.') && nachkommaStr.length === 0){ // z.B. wenn 10.0 / 10 = 1.
+                            // Nichts tun, String ist korrekt
+                        }
+                    }
+                     // Einfache Umwandlung und String-Formatierung:
+                    let numericResult = Number(wertInZielEinheitSkaliertBigInt) / Number(inputScale);
+                    if(istNegativ && numericResult > 0) numericResult *= -1;
+                    wertInZielEinheitStr = numericResult.toString(); // Dies kann wieder zu Fließkomma-Darstellung führen!
+                                                                  // Die obere manuelle String-Konstruktion ist besser.
+
+                } catch (e) {
+                    console.error("BigInt Fehler:", e);
+                    // Fallback bei Fehler mit BigInt
+                    const wertInKleinsterEinheit = wertInputFloat * currentConfig[ausgangsEinheitKey].faktor;
+                    const wertInZielEinheit = wertInKleinsterEinheit / currentConfig[zielEinheitKey].faktor;
+                    wertInZielEinheitStr = wertInZielEinheit.toString();
+                }
+            } else {
+                console.warn("BigInt nicht verfügbar, Präzision könnte leiden.");
+                const wertInKleinsterEinheit = wertInputFloat * currentConfig[ausgangsEinheitKey].faktor;
+                const wertInZielEinheit = wertInKleinsterEinheit / currentConfig[zielEinheitKey].faktor;
+                wertInZielEinheitStr = wertInZielEinheit.toString();
+            }
+
+
+            await populateRowWithValue('row1-', wertInputStr, ausgangsEinheitKey, false);
+            const ausgangsKommaZelleId = 'row1-' + aktuellerUmrechnerTyp + '-' + currentConfig[ausgangsEinheitKey].zellenIdBasis;
+            const ausgangsKommaZelle = document.getElementById(ausgangsKommaZelleId);
+            if (ausgangsKommaZelle) ausgangsKommaZelle.classList.add('td-komma-davor');
+
+
+            await populateRowWithValue('row2-', wertInZielEinheitStr, zielEinheitKey, true);
+            const zielKommaZelleId = 'row2-' + aktuellerUmrechnerTyp + '-' + currentConfig[zielEinheitKey].zellenIdBasis;
+            const zielKommaZelle = document.getElementById(zielKommaZelleId);
+            if (zielKommaZelle) {
+                zielKommaZelle.classList.add('td-komma-davor');
+                zielKommaZelle.classList.add('td-zielwert'); 
+            }
+            
+            // Konvertiere wertInZielEinheitStr zu einer Zahl für toLocaleString
+            const wertInZielEinheitNumber = parseFloat(wertInZielEinheitStr.replace(',','.'));
+
+
+            ergebnisDiv.classList.remove('hidden');
+            ergebnisTextEl.textContent = 
+                `${wertInputFloat.toLocaleString('de-DE', {maximumFractionDigits: 20})} ${currentConfig[ausgangsEinheitKey].name} = ${wertInZielEinheitNumber.toLocaleString('de-DE', { maximumFractionDigits: 20 })} ${currentConfig[zielEinheitKey].name}`;
+
+
+            let erklaerungHTML = `<p>So geht's:</p>
+            <ul>
+                <li><strong>Zeile 1:</strong> Dein Wert (${wertInputFloat.toLocaleString('de-DE', {maximumFractionDigits: 20})} ${currentConfig[ausgangsEinheitKey].name}). Der <span style="color:#d81b60; font-weight:bold;">pinke Strich</span> zeigt das Komma für die Ausgangseinheit.</li>
+                <li><strong>Zeile 2:</strong> Der umgerechnete Wert. Der <span style="color:red; font-weight:bold;">rote Strich</span> zeigt das Komma für die Zieleinheit (${currentConfig[zielEinheitKey].name}). Die grün markierten Zellen zeigen den Zielwert.</li>
+            </ul>`;
+            
+            if (currentConfig[ausgangsEinheitKey].faktor > currentConfig[zielEinheitKey].faktor) {
+                erklaerungHTML += `<p>Du rechnest in eine <strong>kleinere Einheit</strong> um. Das Komma "wandert" in der Tabelle nach rechts (oder es werden Nullen angehängt).</p>`;
+            } else if (currentConfig[ausgangsEinheitKey].faktor < currentConfig[zielEinheitKey].faktor) {
+                erklaerungHTML += `<p>Du rechnest in eine <strong>größere Einheit</strong> um. Das Komma "wandert" in der Tabelle nach links (oder es werden Nullen vorangestellt).</p>`;
+            } else {
+                erklaerungHTML += `<p>Du rechnest in dieselbe Einheit um. Der Wert bleibt gleich!</p>`;
+            }
+            erklaerungTextEl.innerHTML = erklaerungHTML;
+        }
+
+        initUmrechner('laenge');
+    </script>
+</body>
+</html>

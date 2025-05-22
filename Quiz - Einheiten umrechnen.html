@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einheiten Umrechnungs-Quiz</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #e6e6fa; /* Lavender */
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        h1 {
+            color: #483d8b; /* DarkSlateBlue */
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        input[type="text"] { /* Geändert zu text, damit Kommas eingegeben werden können, Validierung in JS */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 60%;
+            font-size: 1em;
+        }
+        button {
+            background-color: #6a5acd; /* SlateBlue */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #483d8b;
+        }
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .correct {
+            background-color: #d4edda; /* LightGreen */
+            color: #155724; /* DarkGreen */
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da; /* LightRed */
+            color: #721c24; /* DarkRed */
+            border: 1px solid #f5c6cb;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Einheiten Umrechnungs-Quiz</h1>
+    <p>Teste dein Wissen! Denke daran, wie du mit Geld rechnest.</p>
+
+    <div class="quiz-container">
+        <div id="questionArea" class="question">Frage wird geladen...</div>
+        <input type="text" id="answerInput" placeholder="Deine Antwort">
+        <button onclick="checkAnswer()">Prüfen</button>
+        <button onclick="nextQuestion()">Nächste Frage</button>
+        <div id="feedbackArea" class="feedback"></div>
+        <div id="scoreArea" class="score">Punkte: 0 / 0</div>
+    </div>
+
+    <script>
+        const questions = [
+            { question: "Wie viele Cent sind 2,50 €?", answer: "250", unit: "ct" },
+            { question: "Wie viele Zentimeter sind 3 m?", answer: "300", unit: "cm" },
+            { question: "Wie viele Millimeter sind 5 cm?", answer: "50", unit: "mm" },
+            { question: "Schreibe 120 cm als Meter (Kommazahl):", answer: "1,20", unit: "m" },
+            { question: "Schreibe 1 Euro und 5 Cent als Kommazahl:", answer: "1,05", unit: "€" },
+            { question: "Wie viele Gramm sind 1,5 kg?", answer: "1500", unit: "g" },
+            { question: "Wie viele Meter sind 2 km?", answer: "2000", unit: "m" },
+            { question: "Schreibe 2 kg und 50 g als Kilogramm (Kommazahl mit 3 Stellen):", answer: "2,050", unit: "kg" },
+            { question: "Schreibe 75 ct als Euro (Kommazahl):", answer: "0,75", unit: "€" },
+            { question: "Schreibe 5 mm als Zentimeter (Kommazahl):", answer: "0,5", unit: "cm" },
+            { question: "Wie viele Kilogramm sind 3500 g?", answer: "3,5", unit: "kg" }, // Akzeptiert auch 3,500
+            { question: "1 m und 8 cm. Schreibe als Meter (Kommazahl):", answer: "1,08", unit: "m"},
+        ];
+
+        let currentQuestionIndex = -1;
+        let score = 0;
+        let totalAsked = 0;
+
+        const questionArea = document.getElementById('questionArea');
+        const answerInput = document.getElementById('answerInput');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const scoreArea = document.getElementById('scoreArea');
+
+        function normalizeAnswer(answer) {
+            // Ersetzt Komma durch Punkt, entfernt Leerzeichen
+            // Erlaubt, dass z.B. "1,500" und "1.5" als gleich gelten, wenn der Wert stimmt.
+            let norm = answer.replace(',', '.').trim();
+            // Wenn es eine Zahl ist, konvertiere sie, um führende/nachfolgende Nullen zu behandeln
+            // z.B. 1.500 wird zu 1.5. Aber 1.050 soll nicht 1.5 werden.
+            // Spezifische Prüfung für kg-Fälle, wo .050 vs .5 wichtig ist
+            if (questions[currentQuestionIndex].unit === "kg" && norm.split('.')[1]?.length === 3) {
+                 // Behalte die Genauigkeit für kg
+            } else if (!isNaN(parseFloat(norm))) {
+                norm = parseFloat(norm).toString(); // Standard-Normalisierung
+            }
+            return norm;
+        }
+
+
+        function displayQuestion() {
+            currentQuestionIndex = Math.floor(Math.random() * questions.length);
+            const q = questions[currentQuestionIndex];
+            questionArea.textContent = q.question;
+            answerInput.value = "";
+            feedbackArea.textContent = "";
+            feedbackArea.className = "feedback"; // Reset class
+            answerInput.focus();
+        }
+
+        function checkAnswer() {
+            if (currentQuestionIndex < 0) {
+                feedbackArea.textContent = "Bitte zuerst eine Frage laden (Nächste Frage klicken).";
+                return;
+            }
+
+            const userAnswer = normalizeAnswer(answerInput.value);
+            const correctAnswer = normalizeAnswer(questions[currentQuestionIndex].answer);
+            
+            // Spezielle Logik für Antworten, die mehrere Formen haben können (z.B. 3,5 oder 3,500)
+            let isCorrect = false;
+            if (userAnswer === correctAnswer) {
+                isCorrect = true;
+            } else {
+                // Für Fälle wie 3,5 kg vs 3,500 kg
+                const userFloat = parseFloat(userAnswer);
+                const correctFloat = parseFloat(correctAnswer);
+                if (!isNaN(userFloat) && !isNaN(correctFloat) && userFloat === correctFloat) {
+                     // Prüfe, ob die Frage explizit drei Nachkommastellen erforderte
+                    if (questions[currentQuestionIndex].question.includes("3 Stellen") && userAnswer.split('.')[1]?.length !== 3) {
+                        isCorrect = false; // User hat nicht die geforderte Anzahl an Nachkommastellen
+                    } else {
+                        isCorrect = true;
+                    }
+                }
+            }
+
+
+            if (isCorrect) {
+                feedbackArea.textContent = "Richtig! Super!";
+                feedbackArea.className = "feedback correct";
+                score++;
+            } else {
+                feedbackArea.textContent = `Leider falsch. Die richtige Antwort ist: ${questions[currentQuestionIndex].answer} ${questions[currentQuestionIndex].unit}.`;
+                feedbackArea.className = "feedback incorrect";
+            }
+            totalAsked++;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            displayQuestion();
+        }
+
+        function updateScore() {
+            scoreArea.textContent = `Punkte: ${score} / ${totalAsked}`;
+        }
+
+        // Erste Frage laden
+        nextQuestion();
+
+    </script>
+
+</body>
+</html>
