@@ -649,12 +649,15 @@
             }
             
             // Konvertiere wertInZielEinheitStr zu einer Zahl für toLocaleString
-            const wertInZielEinheitNumber = parseFloat(wertInZielEinheitStr.replace(',','.'));
+            // const wertInZielEinheitNumber = parseFloat(wertInZielEinheitStr.replace(',','.')); // Entfernt, um Präzision zu erhalten
 
 
             ergebnisDiv.classList.remove('hidden');
+            // Verwende wertInZielEinheitStr direkt und ersetze Punkt durch Komma für die Anzeige
+            let displayWertInZielEinheit = wertInZielEinheitStr.replace('.', ',');
+
             ergebnisTextEl.textContent = 
-                `${wertInputFloat.toLocaleString('de-DE', {maximumFractionDigits: 20})} ${currentConfig[ausgangsEinheitKey].name} = ${wertInZielEinheitNumber.toLocaleString('de-DE', { maximumFractionDigits: 20 })} ${currentConfig[zielEinheitKey].name}`;
+                `${wertInputFloat.toLocaleString('de-DE', {maximumFractionDigits: 20})} ${currentConfig[ausgangsEinheitKey].name} = ${displayWertInZielEinheit} ${currentConfig[zielEinheitKey].name}`;
 
 
             let erklaerungHTML = `<p>So geht's:</p>
