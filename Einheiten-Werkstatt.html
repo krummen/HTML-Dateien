@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe Arbeitsblätter - Größen 5. Klasse (Vollständig Erweitert)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            background-color: #e0f7fa;
+            padding: 10px;
+            border-left: 5px solid #00bcd4;
+            margin-top: 30px;
+        }
+        .task {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .task img {
+            max-width: 150px;
+            display: block;
+            margin: 10px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e9ecef;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 18px); /* Adjust for padding and border */
+        }
+        /* Specific widths for smaller input fields */
+        .input-small { width: 80px !important; }
+        .input-medium { width: 120px !important; }
+        .input-large { width: 100% !important; max-width: 250px;}
+
+
+        .solution {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border: 1px dashed #4caf50;
+            margin-top: 10px;
+            display: none; /* Initially hidden */
+        }
+        .solution ul, .solution ol {
+            padding-left: 20px;
+        }
+        .solution p {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .solution strong {
+            color: #388e3c;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .image-placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: #eee;
+            border: 1px dashed #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 10px auto;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .example-box {
+            border: 1px solid #00bcd4;
+            padding: 10px;
+            background-color: #f0ffff;
+            margin-bottom: 10px;
+        }
+        .differentiation-note {
+            font-style: italic;
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background-color: #fff9c4;
+            border-left: 4px solid #fdd835;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+         /* Print specific styles */
+        @media print {
+            body {
+                margin: 0;
+                background-color: #fff;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            button, .interactive-only {
+                display: none !important;
+            }
+            .solution {
+                display: block !important; /* Ensure solutions are printed if desired, or keep hidden */
+                border: 1px solid #ccc; /* Less prominent border for print */
+            }
+            h2 {
+                background-color: #f0f0f0; /* Lighter background for print */
+                border-left: 3px solid #999;
+            }
+            input[type="text"], input[type="number"] {
+                border: 1px solid #999;
+                background-color: #f9f9f9; /* Slightly off-white for input fields */
+                width: auto; /* Allow shrinking to content */
+            }
+            .input-small, .input-medium, .input-large { width: auto !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mathe-Werkstatt: Größen und Einheiten (5. Klasse - Vollständig Erweitert)</h1>
+        <p>Hallo! Du hast schon gelernt, wie man Längen und Gewichte misst und wie man Einheiten umrechnet. Diese Arbeitsblätter helfen dir, dein Wissen zu Größen zu vertiefen.</p>
+
+        <!-- PHASE 1: Größenordnungen abschätzen und einordnen -->
+        <section id="phase1">
+            <h2>Phase 1: Größen schätzen und zuordnen</h2>
+            <p>Erinnerst du dich? Wir haben schon Gegenstände gemessen und gewogen. Jetzt geht es darum, ein Gefühl für Größen zu bekommen.</p>
+
+            <div class="task">
+                <h3>Aufgabe 1.1: Was passt zusammen? (Grundlagen)</h3>
+                <p>Einige Bilder, Werte und Einheiten sind durcheinandergeraten. Ordne sie richtig zu, indem du die Tabelle ausfüllst. Du kannst Werte und Einheiten auch kombinieren.</p>
+                <table>
+                    <tr>
+                        <th>Bild (Beschreibung)</th>
+                        <th>Mögliche Werte</th>
+                        <th>Mögliche Einheiten</th>
+                        <th>Deine Zuordnung (Wert mit Einheit)</th>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Ein Paket Mehl</div></td>
+                        <td>10, 500, 1, 2</td>
+                        <td>g, kg, cm, m</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Länge eines Bleistifts</div></td>
+                        <td>15, 1, 250, 30</td>
+                        <td>mm, cm, m, g</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Gewicht einer Tafel Schokolade</div></td>
+                        <td>100, 2, 5, 1</td>
+                        <td>kg, g, l, cm</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Höhe einer Tür</div></td>
+                        <td>200, 20, 2, 50</td>
+                        <td>m, cm, mm, kg</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                </table>
+                <button onclick="toggleSolution('sol1_1')">Lösung anzeigen/verstecken</button>
+                <div class="solution" id="sol1_1">
+                    <p><strong>Lösungen (Beispiele):</strong></p>
+                    <ul>
+                        <li>Paket Mehl: 1 kg (oder 1000 g)</li>
+                        <li>Länge eines Bleistifts: 15 cm (oder 150 mm)</li>
+                        <li>Gewicht einer Tafel Schokolade: 100 g</li>
+                        <li>Höhe einer Tür: 2 m (oder 200 cm)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 1.2: Schätze selbst! (Grundlagen)</h3>
+                <p>Schau dir die Beschreibungen an. Schätze den Wert und die passende Einheit. Denke an Dinge, die du schon gemessen oder gewogen hast!</p>
+                <table>
+                    <tr>
+                        <th>Gegenstand/Situation</th>
+                        <th>Deine Schätzung (Wert)</th>
+                        <th>Deine Schätzung (Einheit)</th>
+                    </tr>
+                    <tr>
+                        <td>Gewicht deines Schulranzens (voll)</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Länge deines Mathebuchs</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Dauer einer großen Pause</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Gewicht eines Apfels</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                </table>
+                 <p class="interactive-only">Vergleiche deine Schätzungen mit deinen Mitschülern! Gibt es große Unterschiede?</p>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 1.3: Finde Beispiele! (Grundlagen)</h3>
+                <p>Hier sind Werte mit Einheiten gegeben. Finde für jede Angabe ein passendes Beispiel aus deinem Alltag.</p>
+                <ul>
+                    <li><strong>Ca. 3 m:</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 500 g:</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 10 s (Sekunden):</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 250 ml (Milliliter):</strong> <input type="text" class="input-large"></li>
+                </ul>
+                <button onclick="toggleSolution('sol1_3')">Beispiel-Lösungen anzeigen/verstecken</button>
+                <div class="solution" id="sol1_3">
+                    <p><strong>Beispiel-Lösungen:</strong></p>
+                    <ul>
+                        <li><strong>Ca. 3 m:</strong> Länge eines kleinen Autos, Höhe eines Basketballkorbs.</li>
+                        <li><strong>Ca. 500 g:</strong> Ein Päckchen Butter, ein halbes Paket Mehl.</li>
+                        <li><strong>Ca. 10 s:</strong> Zeit, um bis 10 zu zählen, einmal tief ein- und ausatmen.</li>
+                        <li><strong>Ca. 250 ml:</strong> Ein Glas Wasser, eine kleine Tasse Kakao.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr style="margin: 30px 0;">
+            <h3>Phase 1: Aufgaben für Fortgeschrittene</h3>
+
+            <div class="task">
+                <h3>Aufgabe 1.1a: Was passt zusammen? (Teil 2)</h3>
+                <p>Ordne die Bilder (Beschreibungen) den Werten und Einheiten richtig zu.</p>
+                <table>
+                    <tr>
+                        <th>Bild (Beschreibung)</th>
+                        <th>Mögliche Werte</th>
+                        <th>Mögliche Einheiten</th>
+                        <th>Deine Zuordnung (Wert mit Einheit)</th>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Gewicht eines Fahrrads</div></td>
+                        <td>150, 15, 50, 1</td>
+                        <td>g, kg, t, cm</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Länge eines Fußballfelds</div></td>
+                        <td>10, 100, 1, 500</td>
+                        <td>cm, m, km, mm</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Inhalt einer Wasserflasche</div></td>
+                        <td>50, 750, 2, 10</td>
+                        <td>l, ml, cl, hl</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                    <tr>
+                        <td><div class="image-placeholder">Dauer eines Kinofilms</div></td>
+                        <td>90, 2, 15, 120</td>
+                        <td>s, min, h, Tage</td>
+                        <td><input type="text" class="input-medium"></td>
+                    </tr>
+                </table>
+                <button onclick="toggleSolution('sol1_1a')">Lösung anzeigen/verstecken</button>
+                <div class="solution" id="sol1_1a">
+                    <p><strong>Lösungen (Beispiele):</strong></p>
+                    <ul>
+                        <li>Gewicht eines Fahrrads: 15 kg</li>
+                        <li>Länge eines Fußballfelds: 100 m</li>
+                        <li>Inhalt einer Wasserflasche: 750 ml (oder 0,75 l)</li>
+                        <li>Dauer eines Kinofilms: 120 min (oder 2 h, oder 90 min)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 1.2a: Schätze selbst! (Teil 2)</h3>
+                <p>Schau dir die Beschreibungen an. Schätze den Wert und die passende Einheit.</p>
+                <table>
+                    <tr>
+                        <th>Gegenstand/Situation</th>
+                        <th>Deine Schätzung (Wert)</th>
+                        <th>Deine Schätzung (Einheit)</th>
+                    </tr>
+                    <tr>
+                        <td>Gewicht eines Elefantenbabys bei Geburt</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Höhe deines Zimmers</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Zeit, die du für deine Hausaufgaben brauchst</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                    <tr>
+                        <td>Temperatur an einem heißen Sommertag</td>
+                        <td><input type="number" class="input-small"></td>
+                        <td><input type="text" class="input-small"></td>
+                    </tr>
+                </table>
+                 <p class="interactive-only">Vergleiche deine Schätzungen mit deinen Mitschülern! Gibt es große Unterschiede?</p>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 1.3a: Finde Beispiele! (Teil 2)</h3>
+                <p>Hier sind Werte mit Einheiten gegeben. Finde für jede Angabe ein passendes Beispiel aus deinem Alltag oder deiner Vorstellung.</p>
+                <ul>
+                    <li><strong>Ca. 10 kg:</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 30 min:</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 5 mm:</strong> <input type="text" class="input-large"></li>
+                    <li><strong>Ca. 1,5 l (Liter):</strong> <input type="text" class="input-large"></li>
+                </ul>
+                <button onclick="toggleSolution('sol1_3a')">Beispiel-Lösungen anzeigen/verstecken</button>
+                <div class="solution" id="sol1_3a">
+                    <p><strong>Beispiel-Lösungen:</strong></p>
+                    <ul>
+                        <li><strong>Ca. 10 kg:</strong> Ein Kasten Wasser (klein), ein schwerer Schulranzen, ein kleiner Hund.</li>
+                        <li><strong>Ca. 30 min:</strong> Eine Fernsehsendung, eine Busfahrt, eine Unterrichtsstunde (manchmal).</li>
+                        <li><strong>Ca. 5 mm:</strong> Dicke eines Buntstifts, Länge eines Reiskorns, Breite eines kleinen Fingernagels.</li>
+                        <li><strong>Ca. 1,5 l:</strong> Eine große Flasche Limonade, Inhalt eines kleinen Kochtopfs.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHASE 6: Umgang mit Präfixen -->
+        <section id="phase6">
+            <h2>Phase 6: Die Sprache der Größen – Präfixe verstehen (Fortsetzung)</h2>
+            <p>Präfixe (Vorsilben) helfen uns, sehr große oder sehr kleine Mengen darzustellen.</p>
+            
+            <div class="example-box">
+                <p><strong>Erinnerung:</strong></p>
+                <ul>
+                    <li><b>Kilo (k)</b> bedeutet Tausend (1.000)</li>
+                    <li><b>Zenti (c)</b> bedeutet Hundertstel (1/100 oder 0,01)</li>
+                    <li><b>Milli (m)</b> bedeutet Tausendstel (1/1.000 oder 0,001)</li>
+                </ul>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 6.1: Präfix-Tabelle (Erweitert)</h3>
+                <p>Fülle die Tabelle mit den Bedeutungen und Beispielen aus. Einige kennst du schon, andere sind neu.</p>
+                <table>
+                    <tr>
+                        <th>Präfix</th>
+                        <th>Symbol</th>
+                        <th>Bedeutung (Faktor)</th>
+                        <th>Beispiel mit Basiseinheit (z.B. Meter, Gramm, Byte, Sekunde, Watt, Volt, Joule...)</th>
+                    </tr>
+                    <tr>
+                        <td>Tera</td>
+                        <td>T</td>
+                        <td>1.000.000.000.000 (Billion)</td>
+                        <td><input type="text" class="input-large"></td>
+                    </tr>
+                    <tr>
+                        <td>Giga</td>
+                        <td>G</td>
+                        <td>1.000.000.000 (Milliarde)</td>
+                        <td><input type="text" class="input-large"></td>
+                    </tr>
+                    <tr>
+                        <td>Mega</td>
+                        <td>M</td>
+                        <td>1.000.000 (Million)</td>
+                        <td><input type="text" class="input-large"></td>
+                    </tr>
+                    <tr>
+                        <td>Kilo</td>
+                        <td>k</td>
+                        <td>1.000 (Tausend)</td>
+                        <td>Kilogramm (kg), Kilometer (km), Kilowatt (kW)</td>
+                    </tr>
+                    <tr>
+                        <td><em>(Basiseinheit)</em></td>
+                        <td><em>-</em></td>
+                        <td><em>1</em></td>
+                        <td><em>Meter (m), Gramm (g), Sekunde (s), Watt (W), Volt (V), Byte (B)</em></td>
+                    </tr>
+                    <tr>
+                        <td>Zenti</td>
+                        <td>c</td>
+                        <td>0,01 (Hundertstel)</td>
+                        <td>Zentimeter (cm)</td>
+                    </tr>
+                     <tr>
+                        <td>Milli</td>
+                        <td>m</td>
+                        <td>0,001 (Tausendstel)</td>
+                        <td>Millimeter (mm), Milligramm (mg), Milliliter (ml), Millivolt (mV), Millisekunde (ms)</td>
+                    </tr>
+                    <tr>
+                        <td>Mikro</td>
+                        <td>µ</td>
+                        <td>0,000.001 (Millionstel)</td>
+                        <td><input type="text" class="input-large"></td>
+                    </tr>
+                    <tr>
+                        <td>Nano</td>
+                        <td>n</td>
+                        <td>0,000.000.001 (Milliardstel)</td>
+                        <td><input type="text" class="input-large"></td>
+                    </tr>
+                </table>
+                <p class="differentiation-note"><strong>Für Experten:</strong> Der Präfix "Femto (f)" bedeutet Billiardstel (10<sup>-15</sup>) und "Atto (a)" Trillionstel (10<sup>-18</sup>). Das sind unvorstellbar kleine Größen!</p>
+                <button onclick="toggleSolution('sol6_1_ext')">Lösungsideen anzeigen/verstecken</button>
+                <div class="solution" id="sol6_1_ext">
+                    <p><strong>Lösungsideen:</strong></p>
+                    <ul>
+                        <li><strong>Tera (T):</strong> Terabyte (TB - Festplattenspeicher), Terawatt (TW - Leistung sehr großer Kraftwerke), Terajoule (TJ - Energie)</li>
+                        <li><strong>Giga (G):</strong> Gigabyte (GB - USB-Stick, RAM), Gigahertz (GHz - Prozessortaktung), Gigawatt (GW - Leistung eines Kraftwerks), Gigajoule (GJ - Energiebedarf einer Stadt)</li>
+                        <li><strong>Mega (M):</strong> Megabyte (MB - Größe von Fotos, Liedern), Megapixel (MP - Kameraauflösung), Megawatt (MW - Leistung einer Windkraftanlage), Megahertz (MHz - Radiofrequenzen)</li>
+                        <li><strong>Mikro (µ):</strong> Mikrometer (µm - Größe von Bakterien, Dicke von Haaren), Mikrogramm (µg - Dosierung von Medikamenten), Mikrosekunde (µs - sehr kurze Zeitdauern in der Elektronik), Mikrovolt (µV - sehr kleine Spannungen, z.B. EEG-Signale im Gehirn)</li>
+                        <li><strong>Nano (n):</strong> Nanometer (nm - Größe von Viren, Strukturen in Computerchips), Nanogramm (ng - kleinste Stoffmengen), Nanosekunde (ns - Zeit für Licht, um ca. 30 cm zurückzulegen)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 6.2: Umwandeln mit Präfixen (Erweitert)</h3>
+                <p>Nutze dein Wissen über Präfixe und die Einheiten-Stellenwerttafel, um umzurechnen.</p>
+                <ol>
+                    <li>3,5 Kilogramm (kg) = <input type="text" class="input-small"> Gramm (g)</li>
+                    <li>2500 Milliliter (ml) = <input type="text" class="input-small"> Liter (l)</li>
+                    <li>0,05 Meter (m) = <input type="text" class="input-small"> Millimeter (mm)</li>
+                    <li>120 Sekunden (s) = <input type="text" class="input-small"> Minuten (min)</li>
+                    <li>5 Megabyte (MB) = <input type="text" class="input-small"> Kilobyte (KB) <span class="differentiation-note">(Tipp: 1 MB = 1000 KB oder genauer 1024 KB)</span></li>
+                    <li>0,8 Kilometer (km) = <input type="text" class="input-small"> Meter (m)</li>
+                    <li>300 Zentimeter (cm) = <input type="text" class="input-small"> Meter (m)</li>
+                    <li>50 Millivolt (mV) = <input type="text" class="input-small"> Volt (V)</li>
+                    <li>2 Gigawatt (GW) = <input type="text" class="input-small"> Megawatt (MW)</li>
+                    <li>0,003 Ampere (A) = <input type="text" class="input-small"> Milliampere (mA)</li>
+                    <li>1500 Watt (W) = <input type="text" class="input-small"> Kilowatt (kW)</li>
+                    <li>50 Mikrogramm (µg) = <input type="text" class="input-small"> Milligramm (mg)</li>
+                </ol>
+                <div class="info-box">
+                    <p><strong>Info zu neuen Einheiten:</strong></p>
+                    <ul>
+                        <li><strong>Volt (V):</strong> Maßeinheit für elektrische Spannung. Eine normale Haushaltsbatterie hat 1,5 V. Die Spannung, die eine einzelne Muskelzelle bei Aktivität erzeugt (Aktionspotential), liegt im Bereich von etwa 70-90 Millivolt (mV). Die gesamte elektrische Aktivität eines Muskels, die man mit Elektroden auf der Haut misst (EMG), kann einige Mikrovolt (µV) bis wenige Millivolt (mV) betragen.</li>
+                        <li><strong>Ampere (A):</strong> Maßeinheit für elektrische Stromstärke. Ein starkes Ladegerät für ein Handy kann 2 Ampere (A) liefern.</li>
+                        <li><strong>Watt (W):</strong> Maßeinheit für Leistung (z.B. elektrische Leistung). Eine LED-Lampe hat oft um 5-10 Watt (W), ein Föhn 2000 Watt (W) = 2 Kilowatt (kW).</li>
+                        <li><strong>Mol (mol):</strong> (Für Experten) Maßeinheit für die Stoffmenge. Dies wird in der Chemie verwendet und gibt an, wie viele Teilchen (Atome, Moleküle) vorhanden sind. 1 Mol Zucker (ca. 342g) enthält ca. 602.200.000.000.000.000.000.000 Zuckermoleküle. Für die 5. Klasse ist diese Einheit meist noch nicht relevant.</li>
+                    </ul>
+                </div>
+                <button onclick="toggleSolution('sol6_2_ext')">Lösungen anzeigen/verstecken</button>
+                <div class="solution" id="sol6_2_ext">
+                    <p><strong>Lösungen:</strong></p>
+                    <ol>
+                        <li>3,5 Kilogramm (kg) = 3500 Gramm (g)</li>
+                        <li>2500 Milliliter (ml) = 2,5 Liter (l)</li>
+                        <li>0,05 Meter (m) = 50 Millimeter (mm)</li>
+                        <li>120 Sekunden (s) = 2 Minuten (min)</li>
+                        <li>5 Megabyte (MB) = 5000 Kilobyte (KB) (vereinfacht; oder 5120 KB)</li>
+                        <li>0,8 Kilometer (km) = 800 Meter (m)</li>
+                        <li>300 Zentimeter (cm) = 3 Meter (m)</li>
+                        <li>50 Millivolt (mV) = 0,05 Volt (V)</li>
+                        <li>2 Gigawatt (GW) = 2000 Megawatt (MW)</li>
+                        <li>0,003 Ampere (A) = 3 Milliampere (mA)</li>
+                        <li>1500 Watt (W) = 1,5 Kilowatt (kW)</li>
+                        <li>50 Mikrogramm (µg) = 0,05 Milligramm (mg)</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHASE 7: Rechnen mit Größen -->
+        <section id="phase7">
+            <h2>Phase 7: Mit Größen rechnen (Fortsetzung)</h2>
+            <p>Jetzt wird es spannend! Wir rechnen mit den Größen, die du kennengelernt hast.</p>
+
+            <div class="task">
+                <h3>Aufgabe 7.1: Addition und Subtraktion (Schwieriger)</h3>
+                <p><strong>Wichtig:</strong> Du kannst Größen nur addieren oder subtrahieren, wenn sie die gleiche Einheit haben! Wandle bei Bedarf erst um.</p>
+                <ol>
+                    <li>2,3 kg + 850 g + 0,05 kg = <input type="text" class="input-small"> g = <input type="text" class="input-small"> kg</li>
+                    <li>5 km - 1250 m - 75000 cm = <input type="text" class="input-small"> m = <input type="text" class="input-small"> km</li>
+                    <li>10,50 € + 35 ct + 1,05 € = <input type="text" class="input-small"> ct = <input type="text" class="input-small"> €</li>
+                    <li>2 Stunden 15 Minuten + 45 Minuten + 1 Stunde 5 Minuten = <input type="text" class="input-small"> Minuten = <input type="text" class="input-medium"> Stunden und Minuten</li>
+                    <li>0,75 l + 500 ml + 25 cl = <input type="text" class="input-small"> ml = <input type="text" class="input-small"> l <span class="differentiation-note">(cl = Zentiliter; 1 l = 100 cl)</span></li>
+                    <li>3 t - 1500 kg - 800000 g = <input type="text" class="input-small"> kg = <input type="text" class="input-small"> t</li>
+                </ol>
+                <button onclick="toggleSolution('sol7_1_ext')">Lösungen anzeigen/verstecken</button>
+                <div class="solution" id="sol7_1_ext">
+                    <p><strong>Lösungen:</strong></p>
+                    <ol>
+                        <li>2300 g + 850 g + 50 g = 3200 g = 3,2 kg</li>
+                        <li>5000 m - 1250 m - 750 m = 3000 m = 3 km</li>
+                        <li>1050 ct + 35 ct + 105 ct = 1190 ct = 11,90 €</li>
+                        <li>135 min + 45 min + 65 min = 245 Minuten = 4 Stunden und 5 Minuten</li>
+                        <li>750 ml + 500 ml + 250 ml = 1500 ml = 1,5 l</li>
+                        <li>3000 kg - 1500 kg - 800 kg = 700 kg = 0,7 t</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 7.2: Multiplikation und Division mit einer Zahl (Schwieriger)</h3>
+                <p>Manchmal musst du eine Größe vervielfachen oder teilen.</p>
+                <ol>
+                    <li>Eine Rolle Geschenkband enthält 2,5 m Band. Für 12 Geschenke wird jeweils 30 cm Band benötigt. <br>
+                        a) Wie viel Band wird insgesamt benötigt? Gib das Ergebnis in cm und m an. <br>
+                        <input type="text" class="input-large">
+                        <br>
+                        b) Reicht eine Rolle Geschenkband? Begründe. <br>
+                        <input type="text" class="input-large">
+                    </li>
+                    <li>Ein Bäcker backt 6 Bleche mit je 12 Brötchen. Jedes Brötchen wiegt durchschnittlich 80 g. Wie viel Kilogramm Teig (ohne Backverlust) hat er für alle Brötchen verwendet? <br>
+                        <input type="text" class="input-large">
+                    </li>
+                    <li>Ein Schwimmbecken fasst 7500 Liter Wasser. Eine Pumpe fördert 50 Liter pro Minute. Wie lange dauert es in Stunden und Minuten, bis das Becken halb voll ist? <br>
+                        <input type="text" class="input-large">
+                    </li>
+                    <li> Familie Müller fährt in den Urlaub. Die Gesamtstrecke beträgt 1250 km. Am ersten Tag fahren sie 4,5 Stunden mit einer Durchschnittsgeschwindigkeit von 90 km/h. <br>
+                        a) Welche Strecke haben sie am ersten Tag zurückgelegt? <br>
+                        <input type="text" class="input-large">
+                        <br>
+                        b) Welche Strecke müssen sie noch fahren? <br>
+                        <input type="text" class="input-large">
+                    </li>
+                </ol>
+                <button onclick="toggleSolution('sol7_2_ext')">Lösungen anzeigen/verstecken</button>
+                <div class="solution" id="sol7_2_ext">
+                    <p><strong>Lösungen:</strong></p>
+                    <ol>
+                        <li>
+                            a) Benötigtes Band: 12 * 30 cm = 360 cm = 3,6 m.
+                            <br>
+                            b) Eine Rolle hat 2,5 m = 250 cm. Da 360 cm > 250 cm, reicht eine Rolle nicht. (Oder: 3,6 m > 2,5 m)
+                        </li>
+                        <li>
+                            Gesamtzahl Brötchen: 6 Bleche * 12 Brötchen/Blech = 72 Brötchen.
+                            <br>
+                            Gesamtgewicht Teig: 72 Brötchen * 80 g/Brötchen = 5760 g.
+                            <br>
+                            In Kilogramm: 5760 g = 5,76 kg.
+                        </li>
+                        <li>
+                            Halb voll: 7500 l / 2 = 3750 l.
+                            <br>
+                            Zeit: 3750 l / 50 l/min = 75 Minuten.
+                            <br>
+                            In Stunden und Minuten: 75 min = 1 Stunde und 15 Minuten.
+                        </li>
+                        <li>
+                            a) Strecke Tag 1: 4,5 h * 90 km/h = 405 km.
+                            <br>
+                            b) Reststrecke: 1250 km - 405 km = 845 km.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="task">
+                <h3>Aufgabe 7.3: Rechengeschichten – Macht das Sinn? (Wie gehabt)</h3>
+                <p>Manchmal werden Größen miteinander multipliziert oder dividiert. Überlege dir für jede Rechnung eine kleine Geschichte. Entscheide dann, ob die Rechnung und das Ergebnis in deiner Geschichte Sinn ergeben. Welche Einheit hätte das Ergebnis?</p>
+                
+                <p><strong>Beispiel: 5 € / 2 kg</strong></p>
+                <p><em>Meine Geschichte:</em> Ich kaufe 2 kg Äpfel für 5 €. Wie viel kostet 1 kg Äpfel?</p>
+                <p><em>Sinnvoll?</em> Ja. <em>Ergebnis:</em> 2,50 €/kg (Euro pro Kilogramm).</p>
+                
+                <ol>
+                    <li><strong>Rechnung: 5 h x 3 €</strong> 
+                        <br>Deine Geschichte: <input type="text" style="width:80%;">
+                        <br>Sinnvoll? <input type="text" class="input-small"> Ergebnis-Einheit? <input type="text" class="input-medium">
+                    </li>
+                    <li><strong>Rechnung: 10 m x 4 m</strong> 
+                        <br>Deine Geschichte: <input type="text" style="width:80%;">
+                        <br>Sinnvoll? <input type="text" class="input-small"> Ergebnis-Einheit? <input type="text" class="input-medium">
+                    </li>
+                    <li><strong>Rechnung: 100 km / 2 h</strong> 
+                        <br>Deine Geschichte: <input type="text" style="width:80%;">
+                        <br>Sinnvoll? <input type="text" class="input-small"> Ergebnis-Einheit? <input type="text" class="input-medium">
+                    </li>
+                     <li><strong>Rechnung: 5 h x 3 kg</strong> 
+                        <br>Deine Geschichte: <input type="text" style="width:80%;">
+                        <br>Sinnvoll? <input type="text" class="input-small"> Ergebnis-Einheit? <input type="text" class="input-medium">
+                    </li>
+                </ol>
+                <button onclick="toggleSolution('sol7_3_ext')">Lösungsideen anzeigen/verstecken</button>
+                <div class="solution" id="sol7_3_ext">
+                    <p><strong>Lösungsideen und Diskussion:</strong></p>
+                    <ol>
+                        <li><strong>5 h x 3 €:</strong> <em>Geschichte:</em> Ich arbeite 5 Stunden und bekomme 3 € pro Stunde. Wie viel verdiene ich? <em>Sinnvoll?</em> Ja. <em>Ergebnis:</em> 15 €. (Die Einheit "h" kürzt sich quasi weg, wenn die 3€ als "€/h" verstanden werden). Oder: Ich kaufe 5 Stunden Parkzeit zu je 3€.
+                        </li>
+                        <li><strong>10 m x 4 m:</strong> <em>Geschichte:</em> Ein rechteckiger Garten ist 10 m lang und 4 m breit. Wie groß ist seine Fläche? <em>Sinnvoll?</em> Ja. <em>Ergebnis:</em> 40 m² (Quadratmeter). Dies ist eine neue Einheit für Flächen.
+                        </li>
+                        <li><strong>100 km / 2 h:</strong> <em>Geschichte:</em> Ein Auto fährt 100 km in 2 Stunden. Wie schnell fährt es im Durchschnitt? <em>Sinnvoll?</em> Ja. <em>Ergebnis:</em> 50 km/h (Kilometer pro Stunde). Dies ist eine Einheit für Geschwindigkeit.
+                        </li>
+                        <li><strong>5 h x 3 kg:</strong> <em>Geschichte:</em> Eine Maschine läuft 5 Stunden und verbraucht/produziert dabei pro Stunde 3 kg Material. Wie viel Material wird insgesamt verbraucht/produziert? <em>Sinnvoll?</em> Ja, in diesem Kontext. <em>Ergebnis:</em> 15 kg (wenn es um das Gesamtgewicht geht, das in dieser Zeit bewegt wurde). Die Einheit "Stunden mal Kilogramm" (h·kg) selbst ist ungewöhnlich, aber das Ergebnis ist oft eine Gesamtmenge in kg.
+                            <em>Alternative Geschichte ohne Sinn:</em> Ich schlafe 5 Stunden und wiege 3 kg mehr. Macht keinen direkten Sinn.
+                        </li>
+                    </ol>
+                    <p><strong>Wichtige Erkenntnis:</strong> Nicht jede mathematische Operation mit Größen ergibt automatisch eine sinnvolle neue Größe oder ein sinnvolles Ergebnis im Alltag! Man muss immer den Kontext betrachten.</p>
+                </div>
+            </div>
+        </section>
+        <hr>
+        <p style="text-align:center; font-size:0.9em;">Viel Erfolg beim Bearbeiten der Aufgaben!</p>
+    </div>
+
+    <script>
+        function toggleSolution(id) {
+            var solutionDiv = document.getElementById(id);
+            if (solutionDiv.style.display === "none" || solutionDiv.style.display === "") {
+                solutionDiv.style.display = "block";
+            } else {
+                solutionDiv.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
