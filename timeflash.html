@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Flash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    #clock {
+      width: 300px;
+      height: 300px;
+      border: 8px solid black;
+      border-radius: 50%;
+      margin: 20px auto;
+      position: relative;
+      background: white;
+    }
+
+    .hand {
+      position: absolute;
+      width: 6px;
+      left: 50%;
+      transform-origin: bottom center;
+      transform: rotate(0deg);
+      border-radius: 3px;
+    }
+
+    #hour {
+      background: blue;
+      height: 90px;
+      top: calc(50% - 90px);
+    }
+
+    #minute {
+      background: darkred;
+      height: 120px;
+      top: calc(50% - 120px);
+    }
+
+    .center-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: black;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .tick {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: center center;
+    }
+
+    .hour-tick::before,
+    .minute-tick::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .hour-tick::before {
+      width: 4px;
+      height: 20px;
+      background: black;
+      top: -140px;
+    }
+
+    .minute-tick::before {
+      width: 2px;
+      height: 10px;
+      background: #444;
+      top: -140px;
+    }
+
+    #inputArea {
+      margin-top: 20px;
+    }
+
+    #score {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    #lastPoints {
+      font-size: 1em;
+      color: green;
+      margin-top: 5px;
+      height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Time Flash</h1>
+  <div id="clock">
+    <div class="center-dot"></div>
+    <div id="hour" class="hand"></div>
+    <div id="minute" class="hand"></div>
+  </div>
+
+  <div id="inputArea">
+    <input type="text" id="timeInput" placeholder="hh:mm" />
+    <button onclick="checkTime()">Bestätigen</button>
+  </div>
+
+  <div id="score">Punkte: 0</div>
+  <div id="lastPoints"></div>
+
+  <script>
+    let targetHour = 0;
+    let targetMinute = 0;
+    let score = 0;
+    let startTime = Date.now();
+
+    function createTicks() {
+      const clock = document.getElementById("clock");
+      for (let i = 0; i < 60; i++) {
+        const tick = document.createElement("div");
+        tick.className = "tick " + (i % 5 === 0 ? "hour-tick" : "minute-tick");
+        tick.style.transform = `rotate(${i * 6}deg)`;
+        clock.appendChild(tick);
+      }
+    }
+
+    function setRandomTime() {
+      targetHour = Math.floor(Math.random() * 12);
+      targetMinute = Math.floor(Math.random() * 60);
+      updateClock(targetHour, targetMinute);
+      startTime = Date.now();
+    }
+
+    function updateClock(hour, minute) {
+      const hourDeg = (hour % 12 + minute / 60) * 30;
+      const minuteDeg = minute * 6;
+      document.getElementById("hour").style.transform = `rotate(${hourDeg}deg)`;
+      document.getElementById("minute").style.transform = `rotate(${minuteDeg}deg)`;
+    }
+
+    function checkTime() {
+      const input = document.getElementById("timeInput").value.trim();
+      const match = input.match(/^(\d{1,2}):(\d{2})$/);
+      if (!match) {
+        alert("Bitte gib die Uhrzeit im Format hh:mm ein.");
+        return;
+      }
+
+      const inputHour = parseInt(match[1], 10);
+      const inputMinute = parseInt(match[2], 10);
+
+      const validHours = [
+        targetHour,
+        (targetHour + 12) % 24
+      ].map(h => h === 0 ? 0 : h); // 0 bleibt 0, 3 wird 15 usw.
+
+      const isCorrect =
+        validHours.includes(inputHour % 24) &&
+        inputMinute === targetMinute;
+
+      if (isCorrect) {
+
+const timeTaken = (Date.now() - startTime) / 1000;
+        const points = Math.max(100 - Math.floor(timeTaken), 10);
+        score += points;
+        document.getElementById("score").textContent = `Punkte: ${score}`;
+        document.getElementById("lastPoints").textContent = `+${points} Punkte`;
+        document.getElementById("timeInput").value = "";
+        setTimeout(() => {
+          document.getElementById("lastPoints").textContent = "";
+        }, 2000);
+        setRandomTime();
+      } else {
+        alert("Leider falsch. Versuch es nochmal!");
+      }
+    }
+
+    createTicks();
+    setRandomTime();
+  </script>
+
+</body>
+</html>
+	   
+       
