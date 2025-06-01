@@ -1,0 +1,689 @@
+Hier ist der **vollständige Code** der Anwendung mit allen Funktionen, inklusive des Popups für das Vertauschungsgesetz und der kompletten Logik. Speichern Sie diesen Code einfach als **`rechne-geschickt.html`** und öffnen Sie die Datei in einem Browser:
+
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rechne Geschickt!</title>
+    <style>
+        /* Popup-Stil */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .popup-content h3 {
+            color: #2a7aaf;
+            margin-top: 0;
+        }
+        .popup-content button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .popup-content button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Hauptstil */
+        body { font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif; line-height: 1.6; margin: 20px; background-color: #eef2f7; color: #333; font-size: 18px; }
+        .aufgabe-container { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 750px; margin: auto; }
+        h3 { color: #2a7aaf; font-size: 28px; text-align: center; margin-bottom:25px; }
+        h4 { color: #308bc5; font-size: 22px; margin-top: 25px; margin-bottom: 10px;}
+
+        .status-bar { margin-bottom: 20px; }
+        .level-display { font-size: 1.1em; font-weight: bold; margin-bottom: 8px; color: #555; }
+        .progress-bar-container { width: 100%; background-color: #e0e0e0; border-radius: 8px; overflow: hidden; height: 22px; margin-bottom: 20px; }
+        .progress-bar-fill { width: 0%; height: 100%; background-color: #5cb85c; transition: width 0.3s ease-in-out; text-align: center; color: white; line-height: 22px; font-size: 0.9em;}
+
+        .instruction-step-display { font-size: 20px; color: #1a5276; margin-bottom: 10px; font-weight: bold; }
+        #initial-task-numbers-display { margin-bottom: 20px; padding: 12px; border: 2px dashed #a0c4e0; min-height: 55px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .clickable-task-number { padding: 10px 15px; background-color: #3498db; color: white; border-radius: 6px; cursor: pointer; font-size: 1.1em; user-select: none; transition: background-color 0.2s, opacity 0.2s, transform 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .clickable-task-number:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .clickable-task-number.used { background-color: #95a5a6; opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none;}
+        #user-ordered-equation-area { margin-bottom: 25px; padding: 12px; border: 1px solid #ccc; background-color: #fdfdfe; min-height: 55px; display: flex; align-items: center; gap: 6px; font-size: 1.3em; font-weight: bold; color: #333; }
+        .ordered-number-span, .ordered-operator-span { margin: 0 3px; }
+        #pairing-area { margin-top: 20px; padding: 15px; border: 1px solid #b3d4fc; background-color: #e7f3fe; border-radius: 8px; }
+        #pairing-area p { font-size: 1.1em; margin-bottom: 10px; color: #2c3e50; }
+        .pairing-number { display: inline-block; padding: 10px 15px; margin: 0 6px; border: 1px solid #bdc3c7; border-radius: 6px; cursor: pointer; font-size: 1.25em; font-weight: bold; transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s; }
+        .pairing-number:hover { background-color: #ecf0f1; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .pairing-number.selected { transform: scale(1.05); box-shadow: 0 0 8px rgba(0,0,0,0.2);}
+        .operator-pairing { font-size: 1.25em; font-weight: bold; margin: 0 4px;}
+        button { padding: 12px 20px; background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.05em; margin-top: 20px; margin-right: 10px; transition: background-color 0.2s, transform 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        button:hover { background-color: #2980b9; transform: translateY(-1px); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; transform: none;}
+        button#resetButton { background-color: #e74c3c;}
+        button#resetButton:hover { background-color: #c0392b;}
+        .feedback { margin-top: 20px; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1.05em; }
+        .feedback.correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .feedback.info { background-color: #cfe2ff; color: #084298; border: 1px solid #b6d4fe;}
+
+        #calculation-steps { margin-top: 25px; padding: 15px; border: 1px solid #d1d1d1; background-color: #f9f9f9; border-radius: 8px; }
+        #calculation-steps h4 { margin-top: 0; font-size: 22px; color: #308bc5;}
+        
+        .calc-step-line {
+            display: flex;
+            align-items: center; 
+            justify-content: flex-start; 
+            margin: 8px 0; 
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e0e0e0;
+            font-family: 'Consolas', 'Menlo', monospace;
+            font-size: 1.4em;
+            min-height: 1.5em; 
+        }
+        .calc-step-line:last-child { border-bottom: none; }
+
+        .calc-item { 
+            display: inline-flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0 3px; 
+            padding: 0 5px; 
+            text-align: center;
+            position: relative; 
+        }
+        .calc-item.is-sum { 
+            font-weight: bold;
+        }
+        
+        .calc-item-content { 
+        }
+        .calc-item-underline {
+            position: absolute;
+            bottom: -3px; 
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #333;
+            visibility: hidden; 
+        }
+        .calc-item.is-paired-term .calc-item-underline { 
+            visibility: visible;
+        }
+
+        .calc-operator {
+            margin: 0 10px; 
+        }
+        .calc-equals {
+            margin-left: 10px; 
+        }
+        .calc-final-result-wrapper { 
+            display: flex;
+            width: 100%; 
+        }
+        .calc-final-result-indent {
+            visibility: hidden; 
+            white-space: pre; 
+        }
+        .calc-final-result {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Popup für Vertauschungsgesetz -->
+<div id="kommutativPopup" class="popup-overlay">
+    <div class="popup-content">
+        <h3>Das Vertauschungsgesetz</h3>
+        <p>In einer Plusaufgabe darfst du die Zahlen vertauschen – das Ergebnis bleibt gleich!</p>
+        <p><strong>Beispiel:</strong> 3 + 5 = 5 + 3</p>
+        <p>Versuche, geschickt zu vertauschen, um einfache Paare zu bilden (z. B. 7 + 3 = 10).</p>
+        <button id="closePopup">Verstanden, los geht's!</button>
+    </div>
+</div>
+
+<div class="aufgabe-container">
+    <h3>Rechne geschickt!</h3>
+    <div class="status-bar">
+        <div id="levelDisplay" class="level-display">Level: 1</div>
+        <div class="progress-bar-container">
+            <div id="progressBarFill" class="progress-bar-fill">0%</div>
+        </div>
+    </div>
+    <div id="task-setup-area">
+        <div id="instructionForOrdering" class="instruction-step-display">1. Vertausche (Klicke Zahlen an):</div>
+        <p><strong>Ursprüngliche Aufgabe:</strong> <span id="originalTaskString"></span></p>
+        <div id="initial-task-numbers-display"></div>
+        <p style="margin-top:15px;"><strong>Deine umgestellte Aufgabe:</strong></p>
+        <div id="user-ordered-equation-area"></div>
+    </div>
+    <div id="pairing-area" style="display:none;">
+        <div id="instructionForPairing" class="instruction-step-display">2. Bilde Paare:</div>
+        <div id="pairing-equation"></div>
+    </div>
+    <button id="mainButton">Paare bilden</button> 
+    <button id="resetButton">Neustart (Level 1)</button>
+    <div id="calculation-steps" style="display:none;">
+        <h4>Rechenweg:</h4>
+    </div>
+    <p id="feedback" class="feedback" style="display:none;"></p>
+</div>
+
+<script>
+    // Popup-Logik
+    document.addEventListener('DOMContentLoaded', function() {
+        const popup = document.getElementById('kommutativPopup');
+        const closeButton = document.getElementById('closePopup');
+        
+        // Popup beim Start anzeigen
+        popup.style.display = 'flex';
+        
+        // Popup schließen und Aufgabe starten
+        closeButton.addEventListener('click', function() {
+            popup.style.display = 'none';
+            generateTask();
+        });
+    });
+
+    const difficultyLevels = [
+        { name: "Warm-Up", numTerms: 3, numberRange: [1, 10], tasksToLevelUp: 2 },
+        { name: "Anfänger", numTerms: 3, numberRange: [1, 20], tasksToLevelUp: 2 },
+        { name: "Fortgeschritten", numTerms: 4, numberRange: [5, 30], tasksToLevelUp: 3 },
+        { name: "Profi", numTerms: 4, numberRange: [10, 50], tasksToLevelUp: 3 },
+        { name: "Experte", numTerms: 5, numberRange: [10, 75], tasksToLevelUp: 2 },
+        { name: "Meister", numTerms: 5, numberRange: [20, 99], tasksToLevelUp: 2 },
+        { name: "Großmeister", numTerms: 6, numberRange: [25, 99], tasksToLevelUp: 1 }
+    ];
+    
+    let currentDifficultyIndex = 0;
+    let tasksCorrectInLevel = 0;
+    let consecutiveIncorrectAnswers = 0;
+    
+    let initialTaskNumbersForDisplay = [];
+    let currentTaskCorrectSum = 0;
+    let userOrderedNumbers = []; 
+
+    let currentStage = 'ordering_numbers'; 
+    let currentNumbersForCalculation = []; 
+    let selectedForPairing = [];
+    const pairColors = ['#FFDDC1', '#C1FFD7', '#C1D7FF', '#FFE6C1', '#D1C4E9', '#FFCDD2'];
+    let colorIndexForPairing = 0;
+    let formedPairsForStepDisplay = [];
+    let possibleCleverPairsInCurrentStep = [];
+    let previousStepHTMLForIndent = ""; 
+
+    const levelDisplay = document.getElementById('levelDisplay');
+    const progressBarFill = document.getElementById('progressBarFill');
+    const originalTaskStringDisplay = document.getElementById('originalTaskString');
+    const initialNumbersDisplay = document.getElementById('initial-task-numbers-display');
+    const userOrderedEquationArea = document.getElementById('user-ordered-equation-area');
+    const instructionForOrdering = document.getElementById('instructionForOrdering');
+    const instructionForPairing = document.getElementById('instructionForPairing');
+    const mainButton = document.getElementById('mainButton');
+    const resetButton = document.getElementById('resetButton');
+    const feedbackElement = document.getElementById('feedback');
+    const taskSetupArea = document.getElementById('task-setup-area');
+    const pairingArea = document.getElementById('pairing-area');
+    const pairingEquationDisplay = document.getElementById('pairing-equation');
+    const calculationStepsContainer = document.getElementById('calculation-steps');
+
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function findPossibleCleverPairs(numbers) {
+        const cleverPairs = []; 
+        const usedIndices = new Set();
+        for (let i = 0; i < numbers.length; i++) {
+            if (usedIndices.has(i)) continue;
+            for (let j = i + 1; j < numbers.length; j++) {
+                if (usedIndices.has(j)) continue;
+                if ((numbers[i] + numbers[j]) % 10 === 0) {
+                    cleverPairs.push([i, j]); 
+                    usedIndices.add(i);
+                    usedIndices.add(j);
+                    break; 
+                }
+            }
+        }
+        return cleverPairs;
+    }
+
+    function areSelectedPairsClever(currentSelectedPairs) {
+        if (currentSelectedPairs.length === 0) return true; 
+        const pairsToCheck = {};
+        currentSelectedPairs.forEach(item => {
+            if (!pairsToCheck[item.color]) pairsToCheck[item.color] = [];
+            pairsToCheck[item.color].push(item.value);
+        });
+        for (const color in pairsToCheck) {
+            if (pairsToCheck[color].length === 2) {
+                const sum = pairsToCheck[color][0] + pairsToCheck[color][1];
+                if (sum % 10 !== 0) return false; 
+            } else { return false; } 
+        }
+        return true; 
+    }
+
+    function showFeedback(message, type) {
+        feedbackElement.textContent = message;
+        feedbackElement.className = `feedback ${type}`;
+        feedbackElement.style.display = 'block';
+    }
+
+    function generateTask() {
+        const level = difficultyLevels[currentDifficultyIndex];
+        if (!level) {
+            console.error("FEHLER in generateTask: Level-Definition nicht gefunden für Index:", currentDifficultyIndex);
+            return; 
+        }
+        initialTaskNumbersForDisplay = [];
+        
+        if (level.numTerms >= 2) {
+            let num1, num2, attempts = 0; const maxAttempts = 20;
+            do {
+                num1 = getRandomInt(level.numberRange[0], level.numberRange[1]);
+                let complementEnding = (10 - (num1 % 10)) % 10;
+                let potentialNum2s = [];
+                for (let i = level.numberRange[0]; i <= level.numberRange[1]; i++) {
+                    if (i % 10 === complementEnding && i !== num1) potentialNum2s.push(i);
+                }
+                if (potentialNum2s.length > 0) num2 = potentialNum2s[Math.floor(Math.random() * potentialNum2s.length)];
+                else num2 = null;
+                attempts++;
+            } while (!num2 && attempts < maxAttempts);
+            if (num2) initialTaskNumbersForDisplay.push(num1, num2);
+            else initialTaskNumbersForDisplay.push(getRandomInt(level.numberRange[0], level.numberRange[1]), getRandomInt(level.numberRange[0], level.numberRange[1]));
+        } else if (level.numTerms === 1) initialTaskNumbersForDisplay.push(getRandomInt(level.numberRange[0], level.numberRange[1]));
+        
+        for (let i = initialTaskNumbersForDisplay.length; i < level.numTerms; i++) {
+            initialTaskNumbersForDisplay.push(getRandomInt(level.numberRange[0], level.numberRange[1]));
+        }
+        
+        let displayCopy = [...initialTaskNumbersForDisplay]; 
+        displayCopy.sort(() => Math.random() - 0.5); 
+        currentTaskCorrectSum = initialTaskNumbersForDisplay.reduce((a, b) => a + b, 0);
+        originalTaskStringDisplay.textContent = initialTaskNumbersForDisplay.join(' + ') + ' ='; 
+        updateUIForNewTask(displayCopy); 
+    }
+
+    function updateUIForNewTask(numbersToDisplayOnClick) { 
+        currentStage = 'ordering_numbers';
+        userOrderedNumbers = [];
+        formedPairsForStepDisplay = []; 
+        possibleCleverPairsInCurrentStep = [];
+        previousStepHTMLForIndent = "";
+        taskSetupArea.style.display = 'block';
+        instructionForOrdering.style.display = 'block';
+        instructionForPairing.style.display = 'none';
+        pairingArea.style.display = 'none';
+        calculationStepsContainer.style.display = 'none';
+        calculationStepsContainer.innerHTML = '<h4>Rechenweg:</h4>';
+        feedbackElement.style.display = 'none';
+        mainButton.style.display = 'none'; 
+        mainButton.disabled = true; 
+        selectedForPairing = [];
+        currentNumbersForCalculation = [];
+        displayClickableTaskNumbers(numbersToDisplayOnClick); 
+        renderUserOrderedEquation(); 
+        updateLevelDisplay();
+        updateProgressBar();
+    }
+    
+    function displayClickableTaskNumbers(numbers) {
+        initialNumbersDisplay.innerHTML = ''; 
+        if (!numbers || numbers.length === 0) {
+            initialNumbersDisplay.textContent = "(Fehler: Keine Aufgabenzahlen)"; return;
+        }
+        numbers.forEach((num, index) => {
+            const numSpan = document.createElement('span');
+            numSpan.classList.add('clickable-task-number');
+            numSpan.textContent = num;
+            numSpan.dataset.value = num;
+            numSpan.dataset.id = `clickable-${index}-${num}-${Date.now()}`; 
+            numSpan.addEventListener('click', handleInitialNumberClick); 
+            initialNumbersDisplay.appendChild(numSpan);
+        });
+    }
+
+    function handleInitialNumberClick(event) { 
+        const clickedSpan = event.target; 
+        if (clickedSpan.classList.contains('used')) return;
+        const value = parseInt(clickedSpan.dataset.value);
+        userOrderedNumbers.push(value);
+        clickedSpan.classList.add('used'); 
+        renderUserOrderedEquation();
+        if (userOrderedNumbers.length === initialTaskNumbersForDisplay.length) { 
+            setupPairingUIFromOrdered(); 
+        }
+    }
+
+    function renderUserOrderedEquation() {
+        userOrderedEquationArea.innerHTML = '';
+        userOrderedNumbers.forEach((num, index) => {
+            const numSpan = document.createElement('span');
+            numSpan.classList.add('ordered-number-span');
+            numSpan.textContent = num;
+            userOrderedEquationArea.appendChild(numSpan);
+            if (index < userOrderedNumbers.length - 1) {
+                const plusSpan = document.createElement('span');
+                plusSpan.classList.add('ordered-operator-span');
+                plusSpan.textContent = '+';
+                userOrderedEquationArea.appendChild(plusSpan);
+            }
+        });
+        if (userOrderedNumbers.length === 0) {
+            userOrderedEquationArea.textContent = "(Klicke Zahlen oben an)";
+        } else {
+            const equalsSpan = document.createElement('span');
+            equalsSpan.classList.add('ordered-operator-span');
+            equalsSpan.textContent = ' =';
+            userOrderedEquationArea.appendChild(equalsSpan);
+        }
+    }
+    
+    function updateLevelDisplay() {
+        const level = difficultyLevels[currentDifficultyIndex];
+        if (!level) return;
+        levelDisplay.textContent = `Level ${currentDifficultyIndex + 1}: ${level.name}`;
+    }
+
+    function updateProgressBar() {
+        const level = difficultyLevels[currentDifficultyIndex];
+        if (!level) return;
+        const progress = level.tasksToLevelUp > 0 ? (tasksCorrectInLevel / level.tasksToLevelUp) * 100 : 0;
+        progressBarFill.style.width = `${progress}%`;
+        progressBarFill.textContent = `${Math.round(progress)}%`;
+    }
+
+    function setupPairingUIFromOrdered() {
+        currentNumbersForCalculation = [...userOrderedNumbers];
+        taskSetupArea.style.display = 'none';
+        instructionForOrdering.style.display = 'none';
+        instructionForPairing.textContent = "2. Bilde Paare:";
+        instructionForPairing.style.display = 'block';
+        pairingArea.style.display = 'block';
+        pairingEquationDisplay.innerHTML = '';
+        selectedForPairing = [];
+        colorIndexForPairing = 0;
+
+        possibleCleverPairsInCurrentStep = findPossibleCleverPairs(currentNumbersForCalculation);
+        if (possibleCleverPairsInCurrentStep.length > 0) {
+            showFeedback("Hinweis: Es gibt 'geschickte' Paare (Summe endet auf 0), die du bilden kannst!", 'info');
+        }
+
+        currentNumbersForCalculation.forEach((num, index) => {
+            const numSpan = document.createElement('span');
+            numSpan.classList.add('pairing-number');
+            numSpan.textContent = num;
+            numSpan.dataset.value = num;
+            numSpan.dataset.originalIndex = index; 
+            numSpan.addEventListener('click', handlePairingNumberClick);
+            pairingEquationDisplay.appendChild(numSpan);
+            if (index < currentNumbersForCalculation.length - 1) {
+                const plusSpan = document.createElement('span');
+                plusSpan.classList.add('operator-pairing');
+                plusSpan.textContent = '+';
+                pairingEquationDisplay.appendChild(plusSpan);
+            }
+        });
+        
+        mainButton.style.display = 'inline-block'; 
+        mainButton.textContent = 'Zwischenergebnisse berechnen';
+        mainButton.disabled = false; 
+        currentStage = 'pairing';
+        
+        calculationStepsContainer.style.display = 'block';
+        calculationStepsContainer.innerHTML = '<h4>Rechenweg:</h4>';
+        addCalculationStepToDOM(initialTaskNumbersForDisplay.join(' + ') + ' ='); // Nur String für die erste Zeile
+    }
+
+    function handlePairingNumberClick(event) {
+        const clickedSpan = event.target;
+        const clickedValue = parseInt(clickedSpan.dataset.value);
+        const originalIndex = parseInt(clickedSpan.dataset.originalIndex);
+        const existingSelection = selectedForPairing.find(item => item.element === clickedSpan);
+
+        if (existingSelection) { 
+            clickedSpan.style.backgroundColor = '';
+            clickedSpan.classList.remove('selected');
+            selectedForPairing = selectedForPairing.filter(item => item.element !== clickedSpan);
+        } else { 
+            let currentGroup = selectedForPairing.filter(item => item.color === pairColors[colorIndexForPairing % pairColors.length]);
+            if (currentGroup.length < 2) {
+                clickedSpan.style.backgroundColor = pairColors[colorIndexForPairing % pairColors.length];
+                clickedSpan.classList.add('selected');
+                selectedForPairing.push({ element: clickedSpan, value: clickedValue, originalIndex: originalIndex, color: pairColors[colorIndexForPairing % pairColors.length] });
+            } else {
+                colorIndexForPairing = (colorIndexForPairing + 1); 
+                 currentGroup = selectedForPairing.filter(item => item.color === pairColors[colorIndexForPairing % pairColors.length]);
+                 if(currentGroup.length < 2){
+                    clickedSpan.style.backgroundColor = pairColors[colorIndexForPairing % pairColors.length];
+                    clickedSpan.classList.add('selected');
+                    selectedForPairing.push({ element: clickedSpan, value: clickedValue, originalIndex: originalIndex, color: pairColors[colorIndexForPairing % pairColors.length] });
+                 } else {
+                    showFeedback("Maximal zwei Zahlen pro Farbe.", 'incorrect'); return;
+                 }
+            }
+        }
+    }
+    
+    function addCalculationStepToDOM(items, isFinalResult = false, isPairFormationStep = false) {
+        const p = document.createElement('p');
+        p.classList.add('calc-step-line');
+        let currentLineTextForIndentCalculation = "";
+
+        if (isFinalResult) {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('calc-final-result-wrapper');
+            const indentSpan = document.createElement('span');
+            indentSpan.classList.add('calc-final-result-indent');
+            indentSpan.innerHTML = previousStepHTMLForIndent.replace(/[0-9\+\-\=\s]/g, '&nbsp;'); 
+            const equalsSpan = document.createElement('span');
+            equalsSpan.classList.add('calc-equals');
+            equalsSpan.textContent = '=';
+            const resultSpan = document.createElement('span');
+            resultSpan.classList.add('calc-final-result');
+            resultSpan.textContent = items[0]; 
+            wrapper.appendChild(indentSpan);
+            wrapper.appendChild(equalsSpan);
+            wrapper.appendChild(resultSpan);
+            p.appendChild(wrapper);
+            previousStepHTMLForIndent = ""; 
+        } else {
+            if (typeof items === 'string') { // Für die allererste Zeile (Originalaufgabe)
+                p.textContent = items;
+                currentLineTextForIndentCalculation = items.replace(/\s*=\s*$/, ''); // Entferne "=" für Einrückungsberechnung
+            } else { // Array von Item-Objekten
+                items.forEach((item, index) => {
+                    const itemSpan = document.createElement('span');
+                    itemSpan.classList.add('calc-item');
+                    const contentSpan = document.createElement('span');
+                    contentSpan.classList.add('calc-item-content');
+                    contentSpan.textContent = item.display;
+                    itemSpan.appendChild(contentSpan);
+                    currentLineTextForIndentCalculation += item.display;
+
+                    if (item.isPairedTerm && isPairFormationStep) { 
+                        itemSpan.classList.add('is-paired-term');
+                        const underline = document.createElement('div');
+                        underline.classList.add('calc-item-underline');
+                        itemSpan.appendChild(underline);
+                    }
+                    if (item.isSum) { 
+                        itemSpan.classList.add('is-sum');
+                    }
+                    p.appendChild(itemSpan);
+
+                    if (index < items.length - 1) {
+                        const operatorSpan = document.createElement('span');
+                        operatorSpan.classList.add('calc-operator');
+                        operatorSpan.textContent = '+'; 
+                        p.appendChild(operatorSpan);
+                        currentLineTextForIndentCalculation += ' + ';
+                    }
+                });
+                const equalsSpan = document.createElement('span');
+                equalsSpan.classList.add('calc-equals');
+                equalsSpan.textContent = '=';
+                p.appendChild(equalsSpan);
+            }
+            previousStepHTMLForIndent = currentLineTextForIndentCalculation; 
+        }
+        calculationStepsContainer.appendChild(p);
+    }
+    
+    function generateDisplayItemsForStep(numbers, formedPairsInThisStep) {
+        const displayItems = [];
+        let i = 0;
+        
+        // Erstelle eine Map für schnellen Zugriff auf Paare basierend auf ihrem ersten Index
+        const pairMap = new Map();
+        formedPairsInThisStep.forEach(pair => {
+            pairMap.set(pair.indices[0], pair);
+        });
+
+        while (i < numbers.length) {
+            if (pairMap.has(i)) {
+                const pair = pairMap.get(i);
+                displayItems.push({
+                    display: `${numbers[pair.indices[0]]} + ${numbers[pair.indices[1]]}`,
+                    isPairedTerm: true,
+                    isSum: false
+                });
+                i = pair.indices[1] + 1; 
+            } else {
+                displayItems.push({ display: String(numbers[i]), isPairedTerm: false, isSum: false });
+                i++;
+            }
+        }
+        return displayItems;
+    }
+
+    function processPairs() {
+        if (possibleCleverPairsInCurrentStep.length > 0) {
+            let atLeastOneCleverPairSelected = false;
+            const selectedPairsValues = []; 
+             const tempSelectedPairsByColor = {};
+            selectedForPairing.forEach(item => {
+                if (!tempSelectedPairsByColor[item.color]) tempSelectedPairsByColor[item.color] = [];
+                tempSelectedPairsByColor[item.color].push(item.value);
+            });
+            for (const color in tempSelectedPairsByColor) {
+                if (tempSelectedPairsByColor[color].length === 2) selectedPairsValues.push(tempSelectedPairsByColor[color]);
+            }
+            if (selectedPairsValues.length === 0 && selectedForPairing.length > 0) {
+                 showFeedback("Du hast keine vollständigen Paare ausgewählt.", 'incorrect'); return false; 
+            }
+            selectedPairsValues.forEach(pair => { if ((pair[0] + pair[1]) % 10 === 0) atLeastOneCleverPairSelected = true; });
+
+            if ((selectedForPairing.length > 0 && !atLeastOneCleverPairSelected) || (selectedForPairing.length === 0 && possibleCleverPairsInCurrentStep.length > 0)) {
+                showFeedback("Fehler: Du musstest 'geschickte' Paare bilden. Aufgabe nicht geschafft.", 'incorrect');
+                handleTaskResultEvaluation(null, true); 
+                mainButton.textContent = "Nächste Aufgabe"; currentStage = 'task_done'; return false; 
+            }
+        }
+        
+        let pairsFormedThisTurnForDisplay = []; // Für generateDisplayItemsForStep
+        if (selectedForPairing.length > 0) {
+            const tempPairsByColor = {};
+            selectedForPairing.forEach(item => {
+                if (!tempPairsByColor[item.color]) tempPairsByColor[item.color] = [];
+                tempPairsByColor[item.color].push({ value: item.value, originalIndex: item.originalIndex });
+            });
+            for (const color in tempPairsByColor) {
+                if (tempPairsByColor[color].length === 2) {
+                    const p1 = tempPairsByColor[color][0];
+                    const p2 = tempPairsByColor[color][1];
+                    pairsFormedThisTurnForDisplay.push({
+                        indices: [p1.originalIndex, p2.originalIndex].sort((a, b) => a - b),
+                        values: [p1.value, p2.value] 
+                    });
+                }
+            }
+            pairsFormedThisTurnForDisplay.sort((a, b) => a.indices[0] - b.indices[0]);
+        }
+        
+        const stepLineCount = calculationStepsContainer.querySelectorAll('p.calc-step-line').length;
+        const numbersForPairLineDisplay = (stepLineCount < 2 && selectedForPairing.length === 0) ? userOrderedNumbers : currentNumbersForCalculation;
+
+        if (selectedForPairing.length > 0 || (stepLineCount < 2 && selectedForPairing.length === 0)) {
+            addCalculationStepToDOM(generateDisplayItemsForStep(numbersForPairLineDisplay, pairsFormedThisTurnForDisplay), false, selectedForPairing.length > 0);
+        }
+
+        const nextNumbersCalculated = [];
+        const accountedForIndices = new Set(); 
+
+        pairsFormedThisTurnForDisplay.forEach(pair => {
+            const sum = pair.values[0] + pair.values[1];
+            nextNumbersCalculated.push({ value: sum, originalStartIndex: pair.indices[0] });
+            pair.indices.forEach(idx => accountedForIndices.add(idx));
+        });
+
+        for (let i = 0; i < currentNumbersForCalculation.length; i++) {
+            if (!accountedForIndices.has(i)) {
+                nextNumbersCalculated.push({ value: currentNumbersForCalculation[i], originalStartIndex: i });
+            }
+        }
+        nextNumbersCalculated.sort((a, b) => a.originalStartIndex - b.originalStartIndex);
+        currentNumbersForCalculation = nextNumbersCalculated.map(item => item.value);
+
+        const itemsForSumLine = currentNumbersForCalculation.map(num => ({ display: String(num), isPairedTerm: false, isSum: true }));
+        if(currentNumbersForCalculation.length > 0 && (selectedForPairing.length > 0 || currentNumbersForCalculation.length < numbersForPairLineDisplay.length)) { 
+             addCalculationStepToDOM(itemsForSumLine);
+        }
+
+        if (selectedForPairing.length > 0 && !areSelectedPairsClever(selectedForPairing) && possibleCleverPairsInCurrentStep.length === 0 && currentNumbersForCalculation.length > 1) {
+             showFeedback("Hinweis: Mindestens ein gewähltes Paar war nicht 'geschickt'.", 'info');
+        }
+        selectedForPairing = []; 
+
+        if (currentNumbersForCalculation.length === 1) {
+            addCalculationStepToDOM([currentNumbersForCalculation[0]], true); 
+            currentStage = 'task_done'; 
+            mainButton.textContent = "Nächste Aufgabe";
+            handleTaskResultEvaluation(currentNumbersForCalculation[0]);
+        } else if (currentNumbersForCalculation.length >= 2) {
+             reSetupPairingUIForRemaining(currentNumbersForCalculation); 
+             instructionForPairing.textContent = "3. Berechne Zwischenergebnisse (oder bilde weitere Paare):";
+             mainButton.textContent = currentNumbersForCalculation.length === 2 ? 'Endergebnis berechnen' : 'Weitere Paare / Zwischenergebnisse';
+             currentStage = currentNumbersForCalculation.length === 2 ? 'final_calculation' : 'pairing';
+             possibleCleverPairsInCurrentStep = findPossibleCleverPairs(currentNumbersForCalculation); 
+             if (possibleCleverPairsInCurrentStep.length > 0 && currentNumbersForCalculation.length > 1) {
+                showFeedback("Hinweis: Es gibt wieder 'geschickte' Paare, die du bilden kannst!", 'info');
+             }
+        } else { 
+            currentStage = 'task_done'; mainButton.textContent = "Nächste Aufgabe"; handleTaskResultEvaluation(0); 
+        }
+        return true;
+    }
+
+    function reSetupPairingUIForRemaining(numbers){
+        pairingEquationDisplay.innerHTML = ''; 
+        selectedForPairing = [];
+        colorIndexForPairing = 0;
+        numbers.forEach((num, index) => {
+            const numSpan = document.createElement('span');
+            numSpan.classList.add('pairing-number');
+            numSpan.textContent = num;
+            numSpan.dataset.value = num;
+            numSpan.dataset.originalIndex = index;
+            numSpan.addEventListener('click', handlePairingNumberClick);
+            pairingEquationDisplay.appendChild(numSpan);
+            if (index < numbers.length - 1) {
+                const plusSpan = document.createElement('span');
+                plusSpan.classList.add('operator-pairing');
+                plusSpan.textContent = '+';
