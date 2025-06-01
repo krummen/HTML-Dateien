@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Würfel-Explorer 3D (Obere Kanten V4)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+            user-select: none; /* Verhindert Textauswahl beim Drehen */
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .input-group h4 { margin-top: 0; }
+        .input-group label {
+            display: inline-block;
+            width: 20px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        .input-group input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1000px;
+            gap: 20px;
+        }
+
+        .building-wrapper {
+            width: 500px;
+            height: 400px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            cursor: grab;
+            position: relative;
+        }
+        .building-wrapper.grabbing {
+            cursor: grabbing;
+        }
+
+        .building-area {
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .cube-model {
+            width: 30px; /* Größe eines Würfels */
+            height: 30px;
+            position: absolute; /* Für translate3d Positionierung */
+            transform-style: preserve-3d;
+        }
+
+        .face {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 192, 203, 0.75); /* Pink mit etwas Transparenz */
+            box-sizing: border-box;
+        }
+
+        /* Positionierung der 6 Flächen eines Würfels */
+        .front  { transform: translateZ(15px); }
+        .back   { transform: rotateY(180deg) translateZ(15px); }
+        .right  { transform: rotateY(90deg) translateZ(15px); }
+        .left   { transform: rotateY(-90deg) translateZ(15px); }
+        .top    { transform: rotateX(90deg) translateZ(15px); }
+        .bottom { transform: rotateX(-90deg) translateZ(15px); }
+
+
+        .equation-area {
+            width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        .equation-area h3 { margin-top: 0; }
+        .equation-step { margin-bottom: 5px; }
+        .equation-step u {
+            text-decoration: none;
+            border-bottom: 1.5px solid black;
+            padding-bottom: 1px;
+        }
+        .operator { margin: 0 0.3em; }
+        .equals { margin: 0 0.3em; }
+
+        /* Farben für Dimensionen in der Gleichung und für die Labels der Inputs*/
+        .eq-dim-l { color: #27ae60; } /* Grün für Länge (X-Achse im Modell) */
+        .eq-dim-b { color: #2980b9; } /* Blau für Breite/Tiefe (Z-Achse im Modell) */
+        .eq-dim-h { color: #c0392b; } /* Rot für Höhe (Y-Achse im Modell) */
+    </style>
+</head>
+<body>
+
+    <div class="controls-container">
+        <div class="input-group">
+            <h4>Quader 1 (Q1)</h4>
+            <label for="l1" class="eq-dim-l">L:</label><input type="number" id="l1" value="2" min="0" max="8"><br>
+            <label for="b1" class="eq-dim-b">B:</label><input type="number" id="b1" value="2" min="0" max="8"><br>
+            <label for="h1" class="eq-dim-h">H:</label><input type="number" id="h1" value="3" min="0" max="8">
+        </div>
+        <div class="input-group">
+            <h4>Quader 2 (Q2)</h4>
+            <label for="l2" class="eq-dim-l">L:</label><input type="number" id="l2" value="1" min="0" max="8"><br>
+            <label for="b2" class="eq-dim-b">B:</label><input type="number" id="b2" value="1" min="0" max="8"><br>
+            <label for="h2" class="eq-dim-h">H:</label><input type="number" id="h2" value="3" min="0" max="8">
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="building-wrapper" id="buildingWrapper">
+            <div class="building-area" id="buildingArea">
+                <!-- 3D Würfelgebäude wird hier dynamisch erzeugt -->
+            </div>
+        </div>
+
+        <div class="equation-area">
+            <h3>Gleichung:</h3>
+            <div id="equationDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const buildingWrapper = document.getElementById('buildingWrapper');
+            const buildingArea = document.getElementById('buildingArea');
+            const equationDisplay = document.getElementById('equationDisplay');
+
+            const l1_input = document.getElementById('l1');
+            const b1_input = document.getElementById('b1');
+            const h1_input = document.getElementById('h1');
+            const l2_input = document.getElementById('l2');
+            const b2_input = document.getElementById('b2');
+            const h2_input = document.getElementById('h2');
+
+            const CUBE_SIZE = 30;
+            let currentRotateX = 25;
+            let currentRotateY = -35;
+            let currentZoom = 1;
+
+            let isDragging = false;
+            let previousMouseX = 0;
+            let previousMouseY = 0;
+
+            const DIM_EDGE_COLORS = {
+                l: '#27ae60', // Grün für Länge
+                b: '#2980b9', // Blau für Breite/Tiefe
+                h: '#c0392b'  // Rot für Höhe
+            };
+            const DEFAULT_EDGE_COLOR = '#d3a0a8';
+            const EDGE_THICKNESS = '1.5px';
+            const HIGHLIGHT_EDGE_THICKNESS = '2.5px';
+
+            function createSingleCubeModel(cubeX, cubeY, cubeZ, quaderL, quaderB, quaderH) {
+                const cubeModel = document.createElement('div');
+                cubeModel.className = 'cube-model';
+
+                // Modell-Achsen: X-Länge (rechts), Y-Höhe (oben), Z-Breite (hinten)
+                // Referenz-Ecke für H: vorne-links-unten (0,0,0) des Würfels in der Säule
+                // Referenz-Ecke für L & B: vorne-links-oben (X=x, Y=quaderH-1, Z=0 für L) bzw. (X=0, Y=quaderH-1, Z=z für B)
+
+                ['front', 'back', 'left', 'right', 'top', 'bottom'].forEach(faceName => {
+                    const face = document.createElement('div');
+                    face.className = 'face ' + faceName;
+
+                    face.style.borderStyle = 'solid';
+                    face.style.borderColor = DEFAULT_EDGE_COLOR;
+                    face.style.borderWidth = EDGE_THICKNESS;
+
+                    // Höhe (H - Rot) - Vertikale Kante an (X=0, Z=0) des Quaders
+                    if (cubeX === 0 && cubeZ === 0) { // Würfel in der vorderen, linken Säule
+                        if (faceName === 'front') {
+                            face.style.borderLeftColor = DIM_EDGE_COLORS.h;
+                            face.style.borderLeftWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                        if (faceName === 'left') {
+                            face.style.borderRightColor = DIM_EDGE_COLORS.h; // Vordere Kante der linken Fläche
+                            face.style.borderRightWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                    }
+
+                    // Länge (L - Grün) - Obere vordere horizontale Kante entlang X
+                    if (cubeY === quaderH - 1 && cubeZ === 0) { // Würfel in der obersten, vordersten Reihe
+                        if (faceName === 'front') {
+                            face.style.borderTopColor = DIM_EDGE_COLORS.l;
+                            face.style.borderTopWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                        if (faceName === 'top') {
+                            // Die 'untere' Kante der top-Fläche (wenn Y nach oben zeigt) zeigt nach vorne (+Z Richtung des Würfels, die entlang X verläuft)
+                            face.style.borderBottomColor = DIM_EDGE_COLORS.l;
+                            face.style.borderBottomWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                    }
+
+                    // Breite (B - Blau) - Obere linke horizontale Kante entlang Z
+                    if (cubeY === quaderH - 1 && cubeX === 0) { // Würfel in der obersten, linkesten "Tiefen"-Reihe
+                        if (faceName === 'left') {
+                            face.style.borderTopColor = DIM_EDGE_COLORS.b;
+                            face.style.borderTopWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                        if (faceName === 'top') {
+                            // Die 'linke' Kante der top-Fläche
+                            face.style.borderLeftColor = DIM_EDGE_COLORS.b;
+                            face.style.borderLeftWidth = HIGHLIGHT_EDGE_THICKNESS;
+                        }
+                    }
+                    cubeModel.appendChild(face);
+                });
+                return cubeModel;
+            }
+
+            function updateBuildingAndEquation() {
+                const l1 = parseInt(l1_input.value) || 0;
+                const b1 = parseInt(b1_input.value) || 0;
+                const h1 = parseInt(h1_input.value) || 0;
+                const l2 = parseInt(l2_input.value) || 0;
+                const b2 = parseInt(b2_input.value) || 0;
+                const h2 = parseInt(h2_input.value) || 0;
+
+                const maxDim = 8;
+                if (l1 > maxDim || b1 > maxDim || h1 > maxDim || l2 > maxDim || b2 > maxDim || h2 > maxDim) {
+                    buildingArea.innerHTML = '<p style="text-align:center;">Max Dimension ist ' + maxDim + '</p>';
+                    equationDisplay.innerHTML = 'Dimensionen zu groß.';
+                    return;
+                }
+
+                buildingArea.innerHTML = '';
+                let totalCubesQ1 = 0;
+                let totalCubesQ2 = 0;
+
+                if (l1 > 0 && b1 > 0 && h1 > 0) {
+                    totalCubesQ1 = l1 * b1 * h1;
+                    for (let y = 0; y < h1; y++) {
+                        for (let z = 0; z < b1; z++) {
+                            for (let x = 0; x < l1; x++) {
+                                const cube = createSingleCubeModel(x, y, z, l1, b1, h1);
+                                const posX = (x - l1 / 2 + 0.5) * CUBE_SIZE;
+                                const posY = (y - h1 / 2 + 0.5) * CUBE_SIZE;
+                                const posZ = (z - b1 / 2 + 0.5) * CUBE_SIZE;
+                                cube.style.transform = `translate3d(${posX}px, ${posY}px, ${posZ}px)`;
+                                buildingArea.appendChild(cube);
+                            }
+                        }
+                    }
+                }
+
+                if (l2 > 0 && b2 > 0 && h2 > 0) {
+                    totalCubesQ2 = l2 * b2 * h2;
+                    let offsetX_Q2 = 0;
+                    if (totalCubesQ1 > 0) {
+                         const q1_rightEdgeVisual = (l1 / 2) * CUBE_SIZE;
+                         const q2_leftEdgeToCenterVisual = (l2 / 2) * CUBE_SIZE;
+                         offsetX_Q2 = q1_rightEdgeVisual + q2_leftEdgeToCenterVisual + (CUBE_SIZE * 0.3);
+                    }
+
+                    for (let y = 0; y < h2; y++) {
+                        for (let z = 0; z < b2; z++) {
+                            for (let x = 0; x < l2; x++) {
+                                const cube = createSingleCubeModel(x, y, z, l2, b2, h2);
+                                const posX_local = (x - l2 / 2 + 0.5) * CUBE_SIZE;
+                                const posY_local = (y - h2 / 2 + 0.5) * CUBE_SIZE;
+                                const posZ_local = (z - b2 / 2 + 0.5) * CUBE_SIZE;
+                                const finalPosX = posX_local + offsetX_Q2;
+                                cube.style.transform = `translate3d(${finalPosX}px, ${posY_local}px, ${posZ_local}px)`;
+                                buildingArea.appendChild(cube);
+                            }
+                        }
+                    }
+                }
+
+                let eqHtml = '';
+                const l1_s = `<span class="eq-dim-l">${l1}</span>`;
+                const b1_s = `<span class="eq-dim-b">${b1}</span>`;
+                const h1_s = `<span class="eq-dim-h">${h1}</span>`;
+                const l2_s = `<span class="eq-dim-l">${l2}</span>`;
+                const b2_s = `<span class="eq-dim-b">${b2}</span>`;
+                const h2_s = `<span class="eq-dim-h">${h2}</span>`;
+
+                if (totalCubesQ1 > 0 && totalCubesQ2 > 0) {
+                    eqHtml += `<div class="equation-step"><u>${l1_s}<span class="operator">&middot;</span>${b1_s}</u><span class="operator">&middot;</span>${h1_s} <span class="operator">+</span> <u>${l2_s}<span class="operator">&middot;</span>${b2_s}</u><span class="operator">&middot;</span>${h2_s} <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step"><u>${l1*b1}<span class="operator">&middot;</span>${h1_s}</u> <span class="operator">+</span> <u>${l2*b2}<span class="operator">&middot;</span>${h2_s}</u> <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step"><u>${totalCubesQ1} <span class="operator">+</span> ${totalCubesQ2}</u> <span class="equals">=</span> ${totalCubesQ1 + totalCubesQ2}</div>`;
+                } else if (totalCubesQ1 > 0) {
+                    eqHtml += `<div class="equation-step"><u>${l1_s}<span class="operator">&middot;</span>${b1_s}</u><span class="operator">&middot;</span>${h1_s} <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step"><u>${l1*b1}<span class="operator">&middot;</span>${h1_s}</u> <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step">${totalCubesQ1}</div>`;
+                } else if (totalCubesQ2 > 0) {
+                    eqHtml += `<div class="equation-step"><u>${l2_s}<span class="operator">&middot;</span>${b2_s}</u><span class="operator">&middot;</span>${h2_s} <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step"><u>${l2*b2}<span class="operator">&middot;</span>${h2_s}</u> <span class="equals">=</span></div>`;
+                    eqHtml += `<div class="equation-step">${totalCubesQ2}</div>`;
+                } else {
+                    eqHtml = 'Keine Würfel definiert.';
+                }
+                equationDisplay.innerHTML = eqHtml;
+                updateViewTransform();
+            }
+
+            function updateViewTransform() {
+                buildingArea.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg) scale(${currentZoom})`;
+            }
+
+            buildingWrapper.addEventListener('mousedown', (e) => {isDragging = true; previousMouseX = e.clientX; previousMouseY = e.clientY; buildingWrapper.classList.add('grabbing'); e.preventDefault();});
+            document.addEventListener('mousemove', (e) => { if (!isDragging) return; const deltaX = e.clientX - previousMouseX; const deltaY = e.clientY - previousMouseY; currentRotateY += deltaX * 0.5; currentRotateX -= deltaY * 0.5; currentRotateX = Math.max(-90, Math.min(90, currentRotateX)); previousMouseX = e.clientX; previousMouseY = e.clientY; updateViewTransform(); });
+            document.addEventListener('mouseup', () => { if (isDragging) {isDragging = false; buildingWrapper.classList.remove('grabbing'); }});
+
+            buildingWrapper.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { isDragging = true; previousMouseX = e.touches[0].clientX; previousMouseY = e.touches[0].clientY; buildingWrapper.classList.add('grabbing'); e.preventDefault(); } }, { passive: false });
+            document.addEventListener('touchmove', (e) => { if (!isDragging || e.touches.length !== 1) return; const deltaX = e.touches[0].clientX - previousMouseX; const deltaY = e.touches[0].clientY - previousMouseY; currentRotateY += deltaX * 0.5; currentRotateX -= deltaY * 0.5; currentRotateX = Math.max(-90, Math.min(90, currentRotateX)); previousMouseX = e.touches[0].clientX; previousMouseY = e.touches[0].clientY; updateViewTransform(); e.preventDefault(); } , { passive: false });
+            document.addEventListener('touchend', () => { if (isDragging) { isDragging = false; buildingWrapper.classList.remove('grabbing'); } });
+
+            buildingWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomSpeed = 0.05;
+                if (e.deltaY < 0) { currentZoom += zoomSpeed; } else { currentZoom -= zoomSpeed; }
+                currentZoom = Math.max(0.3, Math.min(2.5, currentZoom));
+                updateViewTransform();
+            });
+
+            [l1_input, b1_input, h1_input, l2_input, b2_input, h2_input].forEach(input => {
+                input.addEventListener('input', updateBuildingAndEquation);
+            });
+
+            updateBuildingAndEquation();
+        });
+    </script>
+</body>
+</html>
