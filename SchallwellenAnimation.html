@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission: Schallwellen-Protokoll [Expertenmodus]</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #1a233b;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: #2c3e50;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid #5d6d7e;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #17a2b8;
+            border-bottom: 2px solid #17a2b8;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            text-transform: uppercase;
+        }
+        h1 { text-align: center; border-bottom: none; font-size: 2.5em; color: #e74c3c; } /* Rot für Gefahr */
+        h1 span { font-size: 0.5em; color: #f39c12; display: block; }
+
+        /* Status & Nachrichten */
+        #status-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        #progress-bar-container { width: 100%; background-color: #555; border-radius: 10px; overflow: hidden; border: 1px solid #777; }
+        #progress-bar-fill {
+            width: 0%; height: 25px; background: linear-gradient(90deg, #17a2b8, #00ffdd);
+            text-align: center; line-height: 25px; color: #1a233b; font-weight: bold; transition: width 0.5s ease-in-out;
+        }
+        #trophy-case { margin-top: 10px; font-size: 2em; text-align: center; min-height: 40px;}
+        #failure-message {
+            display: none;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+        }
+
+        /* Missions-Design */
+        .mission {
+            background-color: #34495e;
+            border: 2px solid #5d6d7e;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .mission.locked { display: none; }
+
+        select {
+            padding: 8px; font-size: 1em; border: 2px solid #7f8c8d; border-radius: 5px;
+            margin: 0 5px; background-color: #ecf0f1; color: #333; max-width: 200px;
+        }
+
+        /* Buttons */
+        .action-button {
+            display: inline-block; font-family: 'Orbitron', sans-serif; background-color: #17a2b8;
+            color: white; padding: 12px 25px; text-align: center; text-decoration: none;
+            border-radius: 8px; font-size: 1em; margin: 15px 5px 0 5px; border: none;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase;
+        }
+        .action-button:hover { background-color: #117a8b; box-shadow: 0 0 15px #00ffdd; }
+        .unlock-button { background-color: #2ecc71; }
+        .unlock-button:hover { background-color: #27ae60; }
+        .reset-button { background-color: #e74c3c; } /* Fehlermeldungsfarbe */
+        .reset-button:hover { background-color: #c0392b; }
+        .action-button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
+
+        #final-result {
+            display: none; text-align: center; background: rgba(46, 204, 113, 0.2); /* Erfolgsfarbe */
+            padding: 20px; border-radius: 10px; margin-top: 30px; border: 2px solid #2ecc71;
+        }
+        #final-title { font-size: 2em; color: #2ecc71; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Mission: Schallwellen-Protokoll <span>[Expertenmodus]</span></h1>
+        <p>Willkommen zurück, Agent. Die Protokolle wurden verschlüsselt und die Systeme sind instabil. Deine Mission erfordert nun absolute Präzision.</p>
+        <p><strong>Achtung: Jeder Fehler in deiner Analyse führt zum sofortigen Systemabsturz und Neustart der gesamten Mission! Wähle deine Antworten mit Bedacht.</strong></p>
+
+        <a href="https://phet.colorado.edu/sims/html/sound-waves/latest/sound-waves_de.html" target="_blank" class="action-button">Simulations-Konsole öffnen</a>
+        
+        <div id="status-display">
+            <h3>Missions-Fortschritt</h3>
+            <div id="progress-bar-container">
+                <div id="progress-bar-fill">0%</div>
+            </div>
+            <h3>Gesicherte Protokolle</h3>
+            <div id="trophy-case"></div>
+        </div>
+
+        <div id="failure-message"></div>
+
+        <!-- Mission 1: Einführung -->
+        <div class="mission" id="mission-1">
+            <h3>Mission 1: Das Grundrauschen</h3>
+            <p>Gehe zum Bildschirm <strong>"Einführung"</strong>. Übermittle deine Analyse fehlerfrei, um den nächsten Sektor zu öffnen.</p>
+            <p>1. Ein hoher Ton hat eine hohe Frequenz. Die Wellen sind dann 
+                <select id="q1">
+                    <option value="">-- Analyse --</option><option value="eng aneinander">eng aneinander</option><option value="weit auseinander">weit auseinander</option><option value="sehr hell">sehr hell</option><option value="schneller">schneller</option><option value="gekrümmt">gekrümmt</option>
+                </select>.
+            </p>
+            <p>2. Ein lauter Ton hat eine große Amplitude. Die Wellen sind dann
+                <select id="q2">
+                    <option value="">-- Analyse --</option><option value="sehr hell">sehr hell</option><option value="sehr blass">sehr blass</option><option value="eng aneinander">eng aneinander</option><option value="langsamer">langsamer</option><option value="sehr laut">sehr laut</option>
+                </select> und deutlich zu sehen.
+            </p>
+            <button onclick="checkMission(1)" class="action-button" id="check-1">Analyse übermitteln</button>
+            <button onclick="unlockNextMission(2)" class="action-button unlock-button" id="unlock-2" style="display: none;">Sektor 2 freischalten</button>
+        </div>
+
+        <!-- Mission 2: Messen -->
+        <div class="mission locked" id="mission-2">
+            <h3>Mission 2: Die Kalibrierung</h3>
+            <p>Nutze im Bildschirm <strong>"Messen"</strong> das Maßband, um die Wellenlänge zu untersuchen.</p>
+            <p>3. Bei einer hohen Frequenz ist der Abstand zwischen den Wellen (die Wellenlänge) 
+                <select id="q3">
+                    <option value="">-- Analyse --</option><option value="kleiner">kleiner</option><option value="größer">größer</option><option value="heller">heller</option><option value="lauter">lauter</option><option value="unverändert">unverändert</option>
+                </select> als bei einer niedrigen Frequenz.
+            </p>
+            <button onclick="checkMission(2)" class="action-button" id="check-2">Analyse übermitteln</button>
+            <button onclick="unlockNextMission(3)" class="action-button unlock-button" id="unlock-3" style="display: none;">Sektor 3 freischalten</button>
+        </div>
+
+        <!-- Mission 3: Zwei Quellen -->
+        <div class="mission locked" id="mission-3">
+            <h3>Mission 3: Die Interferenz-Anomalie</h3>
+            <p>Untersuche im Bildschirm <strong>"Zwei Quellen"</strong>, was passiert, wenn sich Wellen überlagern.</p>
+            <p>4. Wo sich Wellen treffen und es lauter wird, 
+                <select id="q4">
+                    <option value="">-- Analyse --</option><option value="verstärken">verstärken</option><option value="auslöschen">auslöschen</option><option value="abstoßen">abstoßen</option><option value="ablenken">ablenken</option><option value="verlangsamen">verlangsamen</option>
+                </select> sie sich.
+            </p>
+            <p>5. Wo sich Wellen treffen und es leise wird, 
+                <select id="q5">
+                    <option value="">-- Analyse --</option><option value="auslöschen">auslöschen</option><option value="verstärken">verstärken</option><option value="blockieren">blockieren</option><option value="reflektieren">reflektieren</option><option value="umkehren">umkehren</option>
+                </select> sie sich.
+            </p>
+            <button onclick="checkMission(3)" class="action-button" id="check-3">Analyse übermitteln</button>
+            <button onclick="unlockNextMission(4)" class="action-button unlock-button" id="unlock-4" style="display: none;">Sektor 4 freischalten</button>
+        </div>
+
+        <!-- Mission 4: Reflexion -->
+        <div class="mission locked" id="mission-4">
+            <h3>Mission 4: Das Echo-Protokoll</h3>
+            <p>Analysiere im Bildschirm <strong>"Reflexion"</strong> die Rückkehr eines Schallimpulses.</p>
+            <p>6. Ein zurückgeworfener Schallimpuls wird als
+                <select id="q6">
+                    <option value="">-- Analyse --</option><option value="Echo">Echo</option><option value="Schatten">Schatten</option><option value="Donner">Donner</option><option value="Interferenz">Interferenz</option><option value="Geräusch">Geräusch</option>
+                </select> bezeichnet.
+            </p>
+            <button onclick="checkMission(4)" class="action-button" id="check-4">Analyse übermitteln</button>
+            <button onclick="unlockNextMission(5)" class="action-button unlock-button" id="unlock-5" style="display: none;">Sektor 5 freischalten</button>
+        </div>
+
+        <!-- Mission 5: Luftdruck -->
+        <div class="mission locked" id="mission-5">
+            <h3>Mission 5: Die Vakuum-Kammer</h3>
+            <p>Letzter Sektor. Untersuche im Bildschirm <strong>"Luftdruck"</strong> die Notwendigkeit eines Mediums.</p>
+            <p>7. Schall braucht zum Reisen
+                <select id="q7">
+                    <option value="">-- Analyse --</option><option value="Materie (z.B. Luft)">Materie (z.B. Luft)</option><option value="nichts">nichts</option><option value="Licht">Licht</option><option value="Stille">Stille</option><option value="Wärme">Wärme</option>
+                </select>.
+            </p>
+             <p>8. Im leeren Raum (Vakuum) kann man Schall daher 
+                <select id="q8">
+                    <option value="">-- Analyse --</option><option value="nicht">nicht</option><option value="sehr gut">sehr gut</option><option value="nur leise">nur leise</option><option value="verzerrt">verzerrt</option><option value="doppelt">doppelt</option>
+                </select> hören.
+            </p>
+            <button onclick="checkMission(5)" class="action-button" id="check-5">Analyse übermitteln</button>
+            <button onclick="showFinalResult()" class="action-button unlock-button" id="unlock-final" style="display: none;">Abschlussbericht anfordern</button>
+        </div>
+        
+        <div id="final-result">
+            <h2 id="final-title">Akustik-Legende</h2>
+            <p>Alle Protokolle wurden fehlerfrei gesichert. Deine Präzision und dein Wissen sind unübertroffen. Mission erfolgreich abgeschlossen, Agent!</p>
+        </div>
+        
+        <div style="text-align:center; margin-top:30px;">
+            <button onclick="resetGame()" class="action-button reset-button">System-Neustart erzwingen</button>
+        </div>
+
+    </div>
+
+    <script>
+        const missionData = [
+            { id: 1, questions: { q1: 'eng aneinander', q2: 'sehr hell' }, trophy: '🔊' },
+            { id: 2, questions: { q3: 'kleiner' }, trophy: '📏' },
+            { id: 3, questions: { q4: 'verstärken', q5: 'auslöschen' }, trophy: '🌊' },
+            { id: 4, questions: { q6: 'Echo' }, trophy: '⛰️' },
+            { id: 5, questions: { q7: 'Materie (z.B. Luft)', q8: 'nicht' }, trophy: '🌌' }
+        ];
+
+        let completedMissions = 0;
+        const TOTAL_MISSIONS = missionData.length;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function randomizeAllSelects() {
+            document.querySelectorAll('select').forEach(select => {
+                const options = Array.from(select.options);
+                const placeholder = options.shift(); // Remove placeholder
+                shuffle(options);
+                select.innerHTML = ''; // Clear existing options
+                select.appendChild(placeholder); // Add placeholder back
+                options.forEach(option => select.appendChild(option));
+            });
+        }
+
+        function checkMission(missionNumber) {
+            const missionInfo = missionData.find(m => m.id === missionNumber);
+            const questions = missionInfo.questions;
+            let allCorrect = true;
+
+            for (const qId in questions) {
+                const selectElement = document.getElementById(qId);
+                if (selectElement.value !== questions[qId]) {
+                    allCorrect = false;
+                    break; 
+                }
+            }
+
+            if (allCorrect) {
+                // Erfolg
+                completedMissions++;
+                document.getElementById(`check-${missionNumber}`).disabled = true;
+
+                const nextButtonId = (missionNumber < TOTAL_MISSIONS) ? `unlock-${missionNumber + 1}` : 'unlock-final';
+                document.getElementById(nextButtonId).style.display = 'inline-block';
+                
+                updateProgressBar();
+                updateTrophyCase(missionInfo.trophy);
+            } else {
+                // FEHLER!
+                const failureBox = document.getElementById('failure-message');
+                failureBox.innerHTML = 'ANALYSEFEHLER! Systemintegrität kompromittiert. Protokoll wird zurückgesetzt...';
+                failureBox.style.display = 'block';
+
+                // Alle Buttons deaktivieren, um weitere Interaktion zu verhindern
+                document.querySelectorAll('.action-button').forEach(btn => btn.disabled = true);
+
+                setTimeout(() => {
+                    resetGame();
+                }, 3000); // 3 Sekunden zum Lesen der Nachricht
+            }
+        }
+
+        function unlockNextMission(nextMissionNumber) {
+            const nextMissionElement = document.getElementById(`mission-${nextMissionNumber}`);
+            nextMissionElement.classList.remove('locked');
+            nextMissionElement.style.display = 'block';
+            document.getElementById(`unlock-${nextMissionNumber}`).style.display = 'none';
+            setTimeout(() => {
+                nextMissionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        function updateProgressBar() {
+            const progress = (completedMissions / TOTAL_MISSIONS) * 100;
+            const bar = document.getElementById('progress-bar-fill');
+            bar.style.width = progress + '%';
+            bar.textContent = Math.round(progress) + '%';
+        }
+
+        function updateTrophyCase(trophy) {
+            document.getElementById('trophy-case').innerHTML += trophy;
+        }
+
+        function showFinalResult() {
+            document.getElementById('unlock-final').style.display = 'none';
+            const resultArea = document.getElementById('final-result');
+            resultArea.style.display = 'block';
+            resultArea.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function resetGame() {
+            location.reload();
+        }
+
+        // Initialisierung beim Laden der Seite
+        window.onload = function() {
+            randomizeAllSelects();
+        };
+    </script>
+</body>
+</html>
