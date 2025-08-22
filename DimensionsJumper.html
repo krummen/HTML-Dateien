@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Übung: Einheiten umrechnen (Profi)</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3; --correct-color: #28a745;
+            --incorrect-color: #dc3545; --light-bg: #f0f2f5; --card-bg: #ffffff; --text-color: #333;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--light-bg); color: var(--text-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        #app-container { display: flex; flex-wrap: wrap; gap: 30px; width: 100%; max-width: 1100px; }
+        #main-content { flex-grow: 1; min-width: 350px; max-width: 600px; }
+        #sidebar { width: 320px; flex-shrink: 0; }
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 25px; margin-bottom: 20px; }
+        .card h2 { margin-top: 0; color: var(--primary-hover); border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; }
+        #task-display { font-size: 1.8em; font-weight: bold; text-align: center; margin: 20px 0; padding: 15px; background-color: #e9f5ff; border-radius: 8px; }
+        #input-area { display: flex; gap: 10px; margin: 20px 0; }
+        #user-answer { flex-grow: 1; padding: 15px; font-size: 1.2em; border: 2px solid #ccc; border-radius: 8px; transition: border-color 0.3s; }
+        #user-answer:focus { outline: none; border-color: var(--primary-color); }
+        .btn { padding: 15px 25px; font-size: 1.2em; font-weight: bold; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s, transform 0.1s; }
+        .btn:active { transform: scale(0.98); } .btn:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+        .btn-primary { background-color: var(--primary-color); } .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #6c757d; font-size: 0.9em; padding: 10px 15px; } .btn-secondary:hover:not(:disabled) { background-color: #5a6268; }
+        .btn-danger { background-color: var(--incorrect-color); font-size: 0.8em; padding: 8px 12px; width: 100%; margin-top: 15px;} .btn-danger:hover:not(:disabled) { background-color: #c82333; }
+        #feedback { margin-top: 15px; font-size: 1.2em; font-weight: bold; text-align: center; min-height: 25px; }
+        .correct { color: var(--correct-color); } .incorrect { color: var(--incorrect-color); }
+        #help-container { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-top: 10px; text-align: left; }
+        .gamification-stats { display: flex; justify-content: space-around; text-align: center; margin-top: 15px; }
+        .stat-value { display: block; font-size: 2em; font-weight: bold; color: var(--primary-color); }
+        #progress-bar { width: 0%; height: 20px; background: linear-gradient(90deg, #28a745, #86e07f); border-radius: 10px; transition: width 0.5s ease-in-out; text-align: center; color: white; line-height: 20px; font-weight: bold; }
+        #weakness-list li { background-color: #fff3f3; border-left: 5px solid var(--incorrect-color); padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        #weakness-list .error-count { background-color: var(--incorrect-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        .hidden { display: none; } ul { list-style-type: none; padding: 0; }
+        #unit-path-container { display: flex; align-items: center; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+        .unit-step { padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; background-color: #f1f1f1; }
+        .unit-step.active { border-color: var(--primary-color); background-color: #e9f5ff; font-weight: bold; }
+        .path-arrow { margin: 0 5px; font-size: 1.2em; color: #888; }
+        .arrow-label { font-size: 0.8em; color: var(--primary-hover); text-align: center; }
+        #avatar-name-display { text-align: center; margin-top: 0; color: var(--primary-hover); font-size: 1.4em; }
+        #avatar-display { width: 150px; height: 150px; margin: 10px auto; border: 2px solid #e0e0e0; border-radius: 50%; overflow: hidden; background-color: #f0f8ff; }
+        #avatar-controls .control-group { margin-bottom: 10px; }
+        #avatar-controls label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        #avatar-controls select, #avatar-controls .color-swatches { width: 100%; }
+        .color-swatches { display: flex; gap: 5px; flex-wrap: wrap; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .color-swatch:hover { transform: scale(1.1); }
+        .color-swatch.selected { border-color: var(--primary-color); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); animation: modal-pop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); max-width: 400px; }
+        .modal-content h3 { font-size: 2.5em; color: var(--primary-color); margin: 0; }
+        .modal-content p { font-size: 1.2em; margin: 15px 0; }
+        #avatar-name-input { width: 80%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 5px; margin-top: 10px; }
+        .reward-name { font-weight: bold; color: var(--correct-color); }
+        @keyframes modal-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @media (max-width: 900px) { #app-container { flex-direction: column-reverse; } #sidebar { width: 100%; } }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div id="main-content">
+            <div class="card">
+                <h2>Rechenaufgabe</h2>
+                <div id="task-display">Wird geladen...</div>
+                <div id="input-area">
+                    <input type="text" id="user-answer" placeholder="Deine Antwort hier..." autocomplete="off">
+                    <button id="check-btn" class="btn btn-primary">Prüfen</button>
+                </div>
+                <div id="feedback"></div>
+                <div id="help-area" class="hidden">
+                    <button id="show-solution-btn" class="btn btn-secondary">Lösung anzeigen</button>
+                    <div id="help-container" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar">
+             <div class="card">
+                <h3 id="avatar-name-display">Mein Avatar</h3>
+                <div id="avatar-display">
+                    <svg id="avatar-svg" viewBox="0 0 100 100">
+                        <g id="avatar-body"> <path d="M50 75 C 25 75, 25 50, 50 50 C 75 50, 75 75, 50 75 Z" fill="#3498db" /> <path d="M50 50 C 25 50, 25 25, 50 25 C 75 25, 75 50, 50 50 Z" fill="#3498db" /> </g>
+                        <g id="avatar-eyes"> <circle cx="40" cy="45" r="5" fill="white" /><circle cx="60" cy="45" r="5" fill="white" /> <circle cx="41" cy="46" r="2" fill="black" /><circle cx="61" cy="46" r="2" fill="black" /> </g>
+                        <g id="item-eyes-glasses" class="hidden"><path d="M30 42 h20 v10 h-20 z M70 42 h-20 v10 h20 z M50 47 h-10" stroke="black" fill="none" stroke-width="2" /></g>
+                        <g id="item-head-wizardhat" class="hidden"><path d="M20 30 L50 5 L80 30 L60 25 L40 25 Z" fill="purple" /></g>
+                        <g id="item-head-crown" class="hidden"><path d="M25 30 L35 15 L50 25 L65 15 L75 30 Z" fill="gold" /></g>
+                    </svg>
+                </div>
+                <div id="avatar-controls"></div>
+            </div>
+            <div class="card">
+                <h2>Dein Fortschritt</h2>
+                <div class="gamification-stats">
+                    <div>Punkte<span id="score" class="stat-value">0</span></div>
+                    <div>Level<span id="level" class="stat-value">1</span></div>
+                    <div>Highscore<span id="highscore" class="stat-value">0</span></div>
+                </div>
+                <p id="level-progress-text" style="margin-top: 20px;">Fortschritt zum nächsten Level:</p>
+                <div style="width: 100%; background-color: #e0e0e0; border-radius: 10px; overflow: hidden;"><div id="progress-bar">0%</div></div>
+                <button id="reset-btn" class="btn btn-danger">Spielstand zurücksetzen</button>
+            </div>
+            <div class="card">
+                <h2>Deine Lernbereiche</h2>
+                <p>Hier siehst du, welche Umrechnungen dir schwerfallen.</p><ul id="weakness-list"></ul>
+            </div>
+        </div>
+    </div>
+    <div id="level-up-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Level Aufstieg!</h3>
+            <p>Glückwunsch, du bist jetzt Level <span id="new-level-span"></span>!</p>
+            <p>Als Belohnung schaltest du frei:</p>
+            <p class="reward-name" id="reward-text"></p>
+            <button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;">Weiter!</button>
+        </div>
+    </div>
+    <div id="welcome-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Willkommen!</h3>
+            <p>Dies ist dein persönlicher Avatar. Gib ihm einen Namen, um mit dem Training zu beginnen!</p>
+            <input type="text" id="avatar-name-input" placeholder="Name des Avatars...">
+            <button id="start-game-btn" class="btn btn-primary" style="margin-top: 20px;">Training starten!</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ----- DEFINITIONEN, KONSTANTEN & BELOHNUNGEN -----
+        const units = { length: ['mm', 'cm', 'dm', 'm', 'km'], area: ['mm²', 'cm²', 'dm²', 'm²', 'a', 'ha', 'km²'], volume: ['mm³', 'cm³', 'ml', 'dm³', 'l', 'm³', 'km³'] };
+        const factors = { 'mm': 0.001, 'cm': 0.01, 'dm': 0.1, 'm': 1, 'km': 1000, 'mm²': 1e-6, 'cm²': 1e-4, 'dm²': 0.01, 'm²': 1, 'a': 100, 'ha': 10000, 'km²': 1e6, 'mm³': 1e-9, 'cm³': 1e-6, 'ml': 1e-6, 'dm³': 0.001, 'l': 0.001, 'm³': 1, 'km³': 1e9 };
+        const unitNames = { 'mm²': 'mm&sup2;', 'cm²': 'cm&sup2;', 'dm²': 'dm&sup2;', 'm²': 'm&sup2;', 'km²': 'km&sup2;', 'mm³': 'mm&sup3;', 'cm³': 'cm&sup3;', 'dm³': 'dm&sup3;', 'm³': 'm&sup3;', 'km³': 'km&sup3;' };
+        const baseUnits = { length: 'm', area: 'm²', volume: 'm³' };
+        const levelUpRewards = { 2: { type: 'color', value: '#e74c3c', name: 'Farbe: Feuerrot' }, 3: { type: 'item', category: 'eyes', id: 'glasses', name: 'Brille' }, 4: { type: 'color', value: '#2ecc71', name: 'Farbe: Smaragdgrün' }, 5: { type: 'item', category: 'head', id: 'wizardhat', name: 'Zauberhut' }, 7: { type: 'color', value: '#f1c40f', name: 'Farbe: Sonnengelb' }, 8: { type: 'item', category: 'head', id: 'crown', name: 'Krone' } };
+
+        // ----- DOM-ELEMENTE -----
+        const dom = {
+            taskDisplay: document.getElementById('task-display'), userAnswerInput: document.getElementById('user-answer'),
+            checkBtn: document.getElementById('check-btn'), feedbackEl: document.getElementById('feedback'),
+            scoreEl: document.getElementById('score'), highscoreEl: document.getElementById('highscore'), levelEl: document.getElementById('level'),
+            progressBar: document.getElementById('progress-bar'), levelProgressText: document.getElementById('level-progress-text'),
+            weaknessListEl: document.getElementById('weakness-list'), helpArea: document.getElementById('help-area'),
+            showSolutionBtn: document.getElementById('show-solution-btn'), helpContainer: document.getElementById('help-container'),
+            avatarDisplay: document.getElementById('avatar-display'), avatarControls: document.getElementById('avatar-controls'), avatarSVG: document.getElementById('avatar-svg'),
+            avatarNameDisplay: document.getElementById('avatar-name-display'),
+            levelUpModal: document.getElementById('level-up-modal'), newLevelSpan: document.getElementById('new-level-span'),
+            rewardText: document.getElementById('reward-text'), closeModalBtn: document.getElementById('close-modal-btn'), resetBtn: document.getElementById('reset-btn'),
+            welcomeModal: document.getElementById('welcome-modal'), avatarNameInput: document.getElementById('avatar-name-input'), startGameBtn: document.getElementById('start-game-btn')
+        };
+
+        // ----- ANWENDUNGSSTATUS -----
+        let state = { 
+            currentTask: {}, score: 0, highscore: 0, highestLevelAchieved: 1, weaknesses: {}, mastery: {}, 
+            attemptCount: 1, solutionRevealed: false, pointsLostThisTask: 0, 
+            avatar: { name: 'Mein Avatar', color: '#3498db', head: 'none', eyes: 'none' }, 
+            unlockedItems: { colors: ['#3498db'], head: ['none'], eyes: ['none'] },
+            gameStarted: false // Neue Flag für Spielstatus
+        };
+        let isInitialLoad = true;
+
+        // ----- LEVEL & PUNKTE-LOGIK -----
+        const levelThresholds = [0]; for (let i = 1; i < 50; i++) { levelThresholds.push(levelThresholds[i - 1] + Math.floor(100 * Math.pow(1.15, i - 1))); }
+        function calculateLevelFromScore(score) { for (let i = levelThresholds.length - 1; i >= 0; i--) { if (score >= levelThresholds[i]) return i + 1; } return 1; }
+        
+        // ----- KERNFUNKTIONEN -----
+        function generateTask() { 
+            if (!state.gameStarted) return; // Task nur generieren wenn Spiel gestartet ist
+            
+            dom.checkBtn.disabled = false; dom.userAnswerInput.value = ''; dom.feedbackEl.innerHTML = ''; 
+            dom.helpArea.classList.add('hidden'); dom.helpContainer.classList.add('hidden'); 
+            dom.showSolutionBtn.disabled = false; dom.userAnswerInput.focus(); 
+            state.attemptCount = 1; state.solutionRevealed = false; state.pointsLostThisTask = 0; 
+            
+            const targetDifficulty = state.highestLevelAchieved + 2; 
+            let bestTask = {}; let bestDifficultyDiff = Infinity; 
+            
+            for (let i = 0; i < 50; i++) { 
+                const categories = Object.keys(units); 
+                const category = categories[Math.floor(Math.random() * categories.length)]; 
+                const unitKeys = units[category]; 
+                const fromUnit = unitKeys[Math.floor(Math.random() * unitKeys.length)]; 
+                let toUnit; 
+                do { toUnit = unitKeys[Math.floor(Math.random() * unitKeys.length)]; } while (fromUnit === toUnit); 
+                const value = Math.floor(Math.random() * 99) + 1; 
+                const correctAnswer = value * factors[fromUnit] / factors[toUnit]; 
+                const candidateTask = { category, fromUnit, toUnit, value, correctAnswer }; 
+                const difficulty = Math.abs(calculateDifficulty(candidateTask) - targetDifficulty); 
+                if (difficulty < bestDifficultyDiff) { bestTask = candidateTask; bestDifficultyDiff = difficulty; } 
+            } 
+            
+            state.currentTask = bestTask; 
+            dom.taskDisplay.innerHTML = `Wandle <strong>${bestTask.value} ${unitNames[bestTask.fromUnit] || bestTask.fromUnit}</strong> in <strong>${unitNames[bestTask.toUnit] || bestTask.toUnit}</strong> um.`; 
+        }
+
+        function calculateDifficulty(task) { let d = 0; if (task.category === 'area') d += 2; if (task.category === 'volume') d += 3; d += Math.abs(units[task.category].indexOf(task.fromUnit) - units[task.category].indexOf(task.toUnit)); if (factors[task.toUnit] > factors[task.fromUnit]) d += 1; if (!Number.isInteger(task.correctAnswer)) d += 2; return d; }
+        
+        function checkAnswer() { 
+            if (!state.gameStarted) return; // Antwort nur prüfen wenn Spiel gestartet ist
+            
+            const rawInput = dom.userAnswerInput.value.trim().replace(',', '.'); 
+            if (rawInput === '') return; 
+            const userAnswer = parseFloat(rawInput); 
+            const { category, fromUnit, toUnit, correctAnswer } = state.currentTask; 
+            const isCorrect = Math.abs(userAnswer - correctAnswer) / (Math.abs(correctAnswer) + 1e-9) < 0.001; 
+            if (isCorrect) { handleCorrectAnswer(`${category}_${fromUnit}_${toUnit}`); } else { handleIncorrectAnswer(); } 
+            saveProgress(); updateDisplay(); 
+        }
+
+        function handleCorrectAnswer(taskKey) { if (state.solutionRevealed) { dom.feedbackEl.innerHTML = `Richtig! Wie erwartet gab es hierfür keine Punkte.`; dom.feedbackEl.className = 'correct'; } else if (state.attemptCount === 1) { state.mastery[taskKey] = (state.mastery[taskKey] || 0) + 1; const pointsGained = Math.max(2, 11 - state.mastery[taskKey]); dom.feedbackEl.innerHTML = `Perfekt! <span style="color: var(--correct-color);">(+${pointsGained} Punkte)</span>`; dom.feedbackEl.className = ''; updateScore(pointsGained); } else { const pointsRegained = Math.round(state.pointsLostThisTask / Math.pow(2, state.attemptCount - 1)); dom.feedbackEl.innerHTML = `Super, jetzt stimmt's! Du hast <strong>${pointsRegained}</strong> Punkte zurückgewonnen!`; dom.feedbackEl.className = 'correct'; updateScore(pointsRegained); } dom.checkBtn.disabled = true; setTimeout(generateTask, 2000); }
+        function handleIncorrectAnswer() { if (state.solutionRevealed) { dom.feedbackEl.textContent = `Das ist leider immer noch nicht die richtige Lösung. Schau sie dir genau an.`; return; } if (state.attemptCount === 1) { const pointsLost = 10; state.pointsLostThisTask = pointsLost; updateScore(-pointsLost); dom.feedbackEl.innerHTML = `Leider falsch. Du hast <strong>${pointsLost} Punkte verloren</strong>. Versuche es nochmal!`; dom.feedbackEl.className = 'incorrect'; dom.helpArea.classList.remove('hidden'); } else { const nextRegain = Math.round(state.pointsLostThisTask / Math.pow(2, state.attemptCount)); dom.feedbackEl.innerHTML = `Immer noch nicht richtig. Dein nächster Versuch ist noch <strong>${nextRegain}</strong> Punkte wert.`; } state.attemptCount++; dom.userAnswerInput.value = ''; dom.userAnswerInput.focus(); }
+        function showSolution() { state.solutionRevealed = true; dom.showSolutionBtn.disabled = true; dom.feedbackEl.innerHTML = `Hier ist der Lösungsweg. Tippe die richtige Antwort ein, um fortzufahren (0 Punkte).`; dom.feedbackEl.className = ''; const task = state.currentTask; const baseUnit = baseUnits[task.category]; let helpHTML = `<h4>Lösungsweg:</h4>`; if (task.fromUnit !== baseUnit && task.toUnit !== baseUnit) { const factor1 = factors[task.fromUnit] / factors[baseUnit]; const valueAfterStep1 = task.value * factor1; const factor2 = factors[baseUnit] / factors[task.toUnit]; helpHTML += `<p><strong>1. Schritt (zur Basis):</strong> Wir rechnen zuerst zur Basiseinheit '${baseUnit}' um.</p>`; helpHTML += `<p style="padding-left: 15px;"><code>${task.value} ${unitNames[task.fromUnit]||task.fromUnit} &times; ${formatNumber(factor1)} = ${formatNumber(valueAfterStep1)} ${unitNames[baseUnit]||baseUnit}</code></p>`; helpHTML += `<p><strong>2. Schritt (zum Ziel):</strong> Jetzt rechnen wir von der Basis zur Zieleinheit um.</p>`; helpHTML += `<p style="padding-left: 15px;"><code>${formatNumber(valueAfterStep1)} ${unitNames[baseUnit]||baseUnit} &times; ${formatNumber(factor2)} = ${formatNumber(task.correctAnswer)} ${unitNames[task.toUnit]||task.toUnit}</code></p>`; } else { const conversionFactor = factors[task.fromUnit] / factors[task.toUnit]; helpHTML += `<p>Um von <strong>${unitNames[task.fromUnit]||task.fromUnit}</strong> nach <strong>${unitNames[task.toUnit]||task.toUnit}</strong> zu kommen, multiplizieren wir mit dem Faktor ${formatNumber(conversionFactor)}.</p>`; helpHTML += `<p style="text-align: center; font-family: monospace; font-size: 1.2em; background-color: #e9ecef; padding: 10px; border-radius: 5px;">${task.value} &times; ${formatNumber(conversionFactor)} = ${formatNumber(task.correctAnswer)}</p>`; } helpHTML += `<p>Die richtige Antwort lautet: <strong>${formatNumber(task.correctAnswer)}</strong></p>`; const unitList = units[task.category]; const fromIndex = unitList.indexOf(task.fromUnit); const toIndex = unitList.indexOf(task.toUnit); let visualPathHTML = '<div id="unit-path-container">'; const step = fromIndex < toIndex ? 1 : -1; for(let i = 0; i < unitList.length; i++) { const isPath = (step > 0 && i >= fromIndex && i < toIndex) || (step < 0 && i <= fromIndex && i > toIndex); visualPathHTML += `<div class="unit-step ${isPath ? 'active' : ''}">${unitNames[unitList[i]] || unitList[i]}</div>`; if (i < unitList.length - 1) { let arrowLabel = ''; if(isPath) { const factor = factors[unitList[i]] / factors[unitList[i+step]]; arrowLabel = `&times;${factor}`; } visualPathHTML += `<div class="path-arrow">${step > 0 ? `<div>&rarr;</div><div class="arrow-label">${arrowLabel}</div>` : `<div>&larr;</div><div class="arrow-label">${arrowLabel}</div>`}</div>`; } } visualPathHTML += '</div>'; helpHTML += visualPathHTML.replace(/&larr;(.*?)&larr;/g, '&larr;').replace(/&rarr;(.*?)&rarr;/g, '&rarr;'); dom.helpContainer.innerHTML = helpHTML; dom.helpContainer.classList.remove('hidden'); }
+        function renderAvatar() { dom.avatarSVG.querySelector('#avatar-body path:first-child').style.fill = state.avatar.color; dom.avatarSVG.querySelector('#avatar-body path:last-child').style.fill = state.avatar.color; ['head', 'eyes'].forEach(category => { const items = dom.avatarSVG.querySelectorAll(`[id^="item-${category}-"]`); items.forEach(item => item.classList.add('hidden')); if(state.avatar[category] !== 'none') { const activeItem = dom.avatarSVG.querySelector(`#item-${category}-${state.avatar[category]}`); if (activeItem) activeItem.classList.remove('hidden'); } }); }
+        function populateAvatarControls() { let controlsHTML = ''; controlsHTML += `<div class="control-group"><label>Körperfarbe</label><div class="color-swatches">`; state.unlockedItems.colors.forEach(color => { controlsHTML += `<div class="color-swatch ${state.avatar.color === color ? 'selected' : ''}" style="background-color: ${color};" data-color="${color}"></div>`; }); controlsHTML += `</div></div>`; ['head', 'eyes'].forEach(category => { controlsHTML += `<div class="control-group"><label>${category === 'head' ? 'Kopfbedeckung' : 'Augen'}</label>`; controlsHTML += `<select data-category="${category}">`; state.unlockedItems[category].forEach(itemId => { const itemName = levelUpRewards[Object.keys(levelUpRewards).find(key => levelUpRewards[key].id === itemId)]?.name || 'Nichts'; controlsHTML += `<option value="${itemId}" ${state.avatar[category] === itemId ? 'selected' : ''}>${itemName}</option>`; }); controlsHTML += `</select></div>`; }); dom.avatarControls.innerHTML = controlsHTML; addAvatarControlListeners(); }
+        function addAvatarControlListeners() { dom.avatarControls.querySelectorAll('.color-swatch').forEach(swatch => { swatch.addEventListener('click', () => { state.avatar.color = swatch.dataset.color; populateAvatarControls(); renderAvatar(); saveProgress(); }); }); dom.avatarControls.querySelectorAll('select').forEach(select => { select.addEventListener('change', (e) => { state.avatar[e.target.dataset.category] = e.target.value; renderAvatar(); saveProgress(); }); }); }
+        function unlockNewItem(level) { const reward = levelUpRewards[level]; if (!reward) return; if (reward.type === 'color') { if (!state.unlockedItems.colors.includes(reward.value)) state.unlockedItems.colors.push(reward.value); } else if (reward.type === 'item') { if (!state.unlockedItems[reward.category].includes(reward.id)) state.unlockedItems[reward.category].push(reward.id); } showLevelUpModal(level, reward.name); populateAvatarControls(); saveProgress(); }
+        function showLevelUpModal(level, rewardName) { 
+            console.log('Showing level up modal for level:', level); // Debug
+            dom.newLevelSpan.textContent = level; 
+            dom.rewardText.textContent = rewardName; 
+            dom.levelUpModal.classList.remove('hidden'); 
+            dom.levelUpModal.style.display = 'flex'; // Explizit anzeigen
+        }
+        function updateScore(points) { state.score += points; const minScoreForHighestLevel = levelThresholds[state.highestLevelAchieved - 1] || 0; if (state.score < minScoreForHighestLevel) state.score = minScoreForHighestLevel; if (state.score > state.highscore) state.highscore = state.score; }
+        
+        function updateDisplay() {
+            const oldLevel = state.highestLevelAchieved; 
+            const newLevel = calculateLevelFromScore(state.score);
+            
+            // Nur Level-Up Modal zeigen wenn das Spiel bereits gestartet wurde und es ein echter Level-Aufstieg ist
+            if (state.gameStarted && !isInitialLoad && newLevel > oldLevel) {
+                state.highestLevelAchieved = newLevel;
+                unlockNewItem(newLevel);
+            } else if (newLevel > state.highestLevelAchieved) {
+                state.highestLevelAchieved = newLevel;
+            }
+            
+            const pointsForCurrentLevel = levelThresholds[state.highestLevelAchieved - 1]; 
+            const pointsForNextLevel = levelThresholds[state.highestLevelAchieved];
+            const pointsNeededForLevel = pointsForNextLevel - pointsForCurrentLevel; 
+            const progressInLevel = state.score - pointsForCurrentLevel;
+            const progressPercentage = Math.max(0, Math.min(100, (progressInLevel / pointsNeededForLevel) * 100));
+            
+            dom.scoreEl.textContent = state.score; 
+            dom.highscoreEl.textContent = state.highscore; 
+            dom.levelEl.textContent = state.highestLevelAchieved;
+            dom.progressBar.style.width = `${progressPercentage}%`; 
+            dom.progressBar.textContent = `${Math.round(progressPercentage)}%`;
+            dom.levelProgressText.textContent = `Punkte bis Level ${state.highestLevelAchieved + 1}: ${Math.max(0, pointsForNextLevel - state.score)}`;
+            dom.weaknessListEl.innerHTML = Object.keys(state.weaknesses).length === 0 ? '<li>Super! Keine Schwächen erkannt.</li>' : Object.entries(state.weaknesses).sort(([,a],[,b]) => b-a).map(([key, count]) => { const [, from, to] = key.split('_'); return `<li><span>${unitNames[from] || from} &rarr; ${unitNames[to] || to}</span> <span class="error-count">${count}</span></li>`; }).join('');
+            dom.avatarNameDisplay.textContent = state.avatar.name;
+        }
+        
+        function saveProgress() { 
+            // Verwende in-memory storage statt localStorage für Claude.ai Kompatibilität
+            if (typeof Storage !== "undefined" && window.localStorage) {
+                try {
+                    localStorage.setItem('unitConverterProgress', JSON.stringify(state));
+                } catch(e) {
+                    console.warn('LocalStorage not available, using in-memory storage');
+                }
+            }
+        }
+        
+        function loadProgress() {
+            // Verwende in-memory storage statt localStorage für Claude.ai Kompatibilität
+            if (typeof Storage !== "undefined" && window.localStorage) {
+                try {
+                    const savedData = localStorage.getItem('unitConverterProgress');
+                    if (savedData) {
+                        const loadedState = JSON.parse(savedData);
+                        state = { ...state, ...loadedState };
+                        state.unlockedItems = { ...{ colors: ['#3498db'], head: ['none'], eyes: ['none'] }, ...loadedState.unlockedItems };
+                        state.avatar = { ...{ name: 'Mein Avatar', color: '#3498db', head: 'none', eyes: 'none' }, ...loadedState.avatar };
+                        state.gameStarted = loadedState.gameStarted || false; // Game-Status laden
+                        return true;
+                    }
+                } catch(e) {
+                    console.warn('Could not load from localStorage');
+                }
+            }
+            return false;
+        }
+        
+        function formatNumber(num) { if (num === 0) return 0; if (Math.abs(num) < 0.001 || Math.abs(num) > 100000) return num.toExponential(3); return parseFloat(num.toPrecision(5)); }
+        
+        function resetProgress() { 
+            if (confirm("Bist du sicher, dass du deinen gesamten Fortschritt (Punkte, Level, Avatar) unwiderruflich löschen möchtest?")) { 
+                if (typeof Storage !== "undefined" && window.localStorage) {
+                    try {
+                        localStorage.removeItem('unitConverterProgress');
+                    } catch(e) {
+                        console.warn('Could not clear localStorage');
+                    }
+                }
+                location.reload(); 
+            } 
+        }
+
+        // ----- INITIALISIERUNG DER ANWENDUNG -----
+        function initializeApp() {
+            updateDisplay();
+            generateTask();
+            populateAvatarControls();
+            renderAvatar();
+            isInitialLoad = false;
+        }
+
+        // ----- EVENT LISTENERS & START-LOGIK -----
+        dom.checkBtn.addEventListener('click', checkAnswer);
+        dom.userAnswerInput.addEventListener('keydown', (event) => { 
+            if (event.key === 'Enter') checkAnswer(); 
+        });
+        dom.showSolutionBtn.addEventListener('click', showSolution);
+        dom.closeModalBtn.addEventListener('click', () => {
+            console.log('Close modal button clicked'); // Debug
+            dom.levelUpModal.classList.add('hidden');
+            dom.levelUpModal.style.display = 'none'; // Explizit verstecken
+        });
+        dom.resetBtn.addEventListener('click', resetProgress);
+        
+        // Verbesserter Event Listener für den Start-Button
+        dom.startGameBtn.addEventListener('click', () => {
+            console.log('Start button clicked'); // Debug
+            const avatarName = dom.avatarNameInput.value.trim();
+            console.log('Avatar name:', avatarName); // Debug
+            
+            if (avatarName === '') {
+                // Warnung wenn kein Name eingegeben wurde
+                dom.avatarNameInput.style.borderColor = '#dc3545';
+                dom.avatarNameInput.placeholder = 'Bitte gib einen Namen ein!';
+                return;
+            }
+            
+            console.log('Closing welcome modal...'); // Debug
+            state.avatar.name = avatarName;
+            state.gameStarted = true; // Spiel als gestartet markieren
+            
+            // Modal explizit verstecken
+            dom.welcomeModal.style.display = 'none';
+            dom.welcomeModal.classList.add('hidden');
+            
+            saveProgress();
+            initializeApp();
+            console.log('App initialized'); // Debug
+        });
+        
+        // Enter-Taste im Namen-Input soll auch das Spiel starten
+        dom.avatarNameInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                dom.startGameBtn.click();
+            }
+        });
+        
+        // Input-Styling zurücksetzen wenn Benutzer tippt
+        dom.avatarNameInput.addEventListener('input', () => {
+            dom.avatarNameInput.style.borderColor = '#ccc';
+            dom.avatarNameInput.placeholder = 'Name des Avatars...';
+        });
+
+        // App starten - Welcome Modal nur zeigen wenn kein gespeicherter Fortschritt vorhanden
+        if (!loadProgress() || !state.gameStarted) {
+            console.log('Showing welcome modal'); // Debug
+            dom.welcomeModal.classList.remove('hidden');
+            dom.welcomeModal.style.display = 'flex'; // Explizit anzeigen
+            // Fokus auf Input setzen
+            setTimeout(() => dom.avatarNameInput.focus(), 100);
+        } else {
+            console.log('Game already started, initializing app'); // Debug
+            dom.welcomeModal.style.display = 'none'; // Sicherstellen dass Modal versteckt ist
+            initializeApp();
+        }
+    });
+    </script>
+</body>
+</html>
