@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Das Haus der Vierecke - Die Herausforderung</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
+            --light-bg: #f4f7f6;
+            --white-bg: #ffffff;
+            --grey-text: #555;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--white-bg);
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        
+        /* Gamification Elements */
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .game-stats div {
+            font-size: 1.1em;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: var(--correct-color);
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .exercise {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .question-container {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .question-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        select, input[type="text"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box; /* Wichtig für 100% Breite */
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback-icon {
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+        .correct-icon::after { content: '✓'; color: var(--correct-color); }
+        .incorrect-icon::after { content: '✗'; color: var(--incorrect-color); }
+
+        .feedback-text {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .correct-text { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .incorrect-text { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        /* Final Results */
+        #final-results {
+            text-align: center;
+            padding: 30px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        #final-title {
+            font-size: 2em;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        #final-score-text {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Das Haus der Vierecke - Die Herausforderung</h1>
+        
+        <div class="game-stats">
+            <div>Score: <span id="current-score">0</span></div>
+            <div>Highscore: <span id="high-score">0</span></div>
+        </div>
+
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar">0%</div>
+        </div>
+
+        <!-- Übung 1: Zuordnung -->
+        <div class="exercise">
+            <h2>Übung 1: Wer wohnt wo? <small>(+10 Pkt. pro Treffer)</small></h2>
+            <div id="exercise1"></div>
+            <button id="btn-ex1" onclick="checkExercise1()">Antworten prüfen</button>
+        </div>
+
+        <!-- Übung 2: Richtig oder Falsch -->
+        <div class="exercise">
+            <h2>Übung 2: Richtig oder Falsch? <small>(+15 Pkt. pro Treffer)</small></h2>
+            <div id="exercise2"></div>
+            <button id="btn-ex2" onclick="checkExercise2()">Antworten prüfen</button>
+        </div>
+
+        <!-- Übung 3: Welches Viereck bin ich? -->
+        <div class="exercise">
+            <h2>Übung 3: Welches Viereck bin ich? <small>(+20 Pkt. pro Treffer)</small></h2>
+            <div id="exercise3"></div>
+            <button id="btn-ex3" onclick="checkExercise3()">Antworten prüfen</button>
+        </div>
+        
+        <!-- Final Results -->
+        <div id="final-results" style="display:none;">
+            <h2 id="final-title"></h2>
+            <p id="final-score-text"></p>
+            <p id="final-message"></p>
+            <button onclick="resetQuiz()">Nochmal versuchen!</button>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let currentScore = 0;
+        let highScore = localStorage.getItem('viereckeHighScore') || 0;
+        let exercisesCompleted = 0;
+        const TOTAL_EXERCISES = 3;
+
+        // --- DATA ---
+        const data = {
+            // (Identisch zur vorherigen Version)
+             exercise1: {
+                questions: [
+                    { name: "Quadrat", answer: "F" }, { name: "Rechteck", answer: "D" }, { name: "Raute", answer: "C" },
+                    { name: "Parallelogramm", answer: "B" }, { name: "Gleichschenkliges Trapez", answer: "A" },
+                    { name: "Drachenviereck", answer: "E" }, { name: "Einfaches Trapez", answer: "G" }
+                ],
+                options: {
+                    A: "Vier Ecken, zwei gegenüberliegende Seiten sind parallel und die beiden anderen Seiten (Schenkel) sind gleich lang.",
+                    B: "Vier Ecken und zwei gegenüberliegende Seiten sind parallel.",
+                    C: "Vier Ecken, alle gegenüberliegenden Seiten sind parallel und alle Seiten sind gleich lang.",
+                    D: "Vier Ecken, alle gegenüberliegenden Seiten sind parallel, die gegenüberliegenden Seiten sind gleich lang und alle Winkel sind rechte Winkel.",
+                    E: "Vier Ecken und zwei Paare von gleich langen Seiten.",
+                    F: "Vier Ecken, alle gegenüberliegenden Seiten sind parallel, alle Seiten sind gleich lang und alle Winkel sind rechte Winkel.",
+                    G: "Vier Ecken und nur ein Paar gegenüberliegender Seiten ist parallel."
+                }
+            },
+            exercise2: [
+                { question: "Jedes Quadrat ist auch ein Rechteck.", answer: "true", explanation: "Richtig. Es erbt alle Eigenschaften des Rechtecks." },
+                { question: "Jedes Trapez ist auch ein Parallelogramm.", answer: "false", explanation: "Falsch. Ein Parallelogramm ist ein spezielles Trapez, nicht umgekehrt." },
+                { question: "Eine Raute ist eine spezielle Art von Drachenviereck.", answer: "true", explanation: "Richtig. Sie hat zwei Paare gleich langer Seiten." },
+                { question: "Ein Rechteck ist immer auch ein gleichschenkliges Trapez.", answer: "true", explanation: "Richtig. Es hat ein Paar paralleler Seiten und die Schenkel sind gleich lang." },
+                { question: "Jedes Parallelogramm ist ein Trapez.", answer: "true", explanation: "Richtig. Es erfüllt die Bedingung von mindestens einem Paar paralleler Seiten." }
+            ],
+            exercise3: [
+                 { question: "Ich habe vier rechte Winkel, aber meine Seiten müssen nicht alle gleich lang sein. Wer bin ich?", answer: "Rechteck" },
+                 { question: "Alle meine vier Seiten sind gleich lang, aber meine Winkel sind nicht unbedingt 90 Grad. Wer bin ich?", answer: "Raute" },
+                 { question: "Ich befinde mich ganz unten. Ich habe vier Ecken, mehr Gemeinsamkeiten müssen meine Artgenossen nicht haben. Wer bin ich?", answer: "Einfaches Viereck" },
+                 { question: "Ich habe genau ein Paar paralleler Seiten. Meine nicht-parallelen Seiten, die Schenkel, sind gleich lang. Wer bin ich?", answer: "Gleichschenkliges Trapez" }
+            ]
+        };
+
+        // --- UI INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateScore(0);
+            generateExercise1();
+            generateExercise2();
+            generateExercise3();
+        });
+        
+        function updateScore(points) {
+            currentScore += points;
+            document.getElementById('current-score').textContent = currentScore;
+            document.getElementById('high-score').textContent = highScore;
+        }
+
+        function updateProgressBar() {
+            exercisesCompleted++;
+            const progress = (exercisesCompleted / TOTAL_EXERCISES) * 100;
+            const bar = document.getElementById('progress-bar');
+            bar.style.width = progress + '%';
+            bar.textContent = Math.round(progress) + '%';
+
+            if (exercisesCompleted === TOTAL_EXERCISES) {
+                setTimeout(showFinalResults, 1000);
+            }
+        }
+
+        // --- EXERCISE GENERATION ---
+        function generateExercise1() {
+            const container = document.getElementById('exercise1');
+            let optionsHTML = '<option value="">Wähle eine Eigenschaft...</option>';
+            for (const key in data.exercise1.options) {
+                optionsHTML += `<option value="${key}">${key}: ${data.exercise1.options[key]}</option>`;
+            }
+            data.exercise1.questions.forEach((q, index) => {
+                container.innerHTML += `
+                    <div class="question-container" id="q1_cont_${index}">
+                        <label class="question-label" for="q1_${index}">${q.name}:</label>
+                        <select id="q1_${index}">
+                            ${optionsHTML}
+                        </select>
+                    </div>`;
+            });
+        }
+        function generateExercise2() {
+            const container = document.getElementById('exercise2');
+            data.exercise2.forEach((q, index) => {
+                container.innerHTML += `
+                    <div class="question-container">
+                        <p class="question-label">${q.question}</p>
+                        <div>
+                            <input type="radio" name="q2_${index}" id="q2_${index}_true" value="true"><label for="q2_${index}_true"> Richtig</label>
+                            <br>
+                            <input type="radio" name="q2_${index}" id="q2_${index}_false" value="false"><label for="q2_${index}_false"> Falsch</label>
+                        </div>
+                        <div id="feedback2_${index}" style="display:none;"></div>
+                    </div>`;
+            });
+        }
+        function generateExercise3() {
+             const container = document.getElementById('exercise3');
+            data.exercise3.forEach((q, index) => {
+                container.innerHTML += `
+                    <div class="question-container" id="q3_cont_${index}">
+                        <p class="question-label">${q.question}</p>
+                        <input type="text" id="q3_${index}" placeholder="Deine Antwort...">
+                    </div>`;
+            });
+        }
+
+        // --- CHECKING LOGIC ---
+        function checkExercise1() {
+            data.exercise1.questions.forEach((q, index) => {
+                const select = document.getElementById(`q1_${index}`);
+                const container = document.getElementById(`q1_cont_${index}`);
+                const icon = document.createElement('span');
+                icon.className = 'feedback-icon';
+                
+                if (select.value === q.answer) {
+                    updateScore(10);
+                    icon.classList.add('correct-icon');
+                } else {
+                    icon.classList.add('incorrect-icon');
+                }
+                container.appendChild(icon);
+                select.disabled = true;
+            });
+            document.getElementById('btn-ex1').disabled = true;
+            updateProgressBar();
+        }
+
+        function checkExercise2() {
+            data.exercise2.forEach((q, index) => {
+                 const radios = document.getElementsByName(`q2_${index}`);
+                 const feedbackEl = document.getElementById(`feedback2_${index}`);
+                 let selectedValue = null;
+                 for (const radio of radios) {
+                     if (radio.checked) selectedValue = radio.value;
+                     radio.disabled = true;
+                 }
+                 
+                 feedbackEl.style.display = 'block';
+                 if (selectedValue === q.answer) {
+                     updateScore(15);
+                     feedbackEl.className = 'feedback-text correct-text';
+                     feedbackEl.innerHTML = `✓ Richtig! ${q.explanation}`;
+                 } else {
+                     feedbackEl.className = 'feedback-text incorrect-text';
+                     feedbackEl.innerHTML = `✗ Falsch. ${q.explanation}`;
+                 }
+            });
+            document.getElementById('btn-ex2').disabled = true;
+            updateProgressBar();
+        }
+
+        function checkExercise3() {
+            data.exercise3.forEach((q, index) => {
+                const input = document.getElementById(`q3_${index}`);
+                const container = document.getElementById(`q3_cont_${index}`);
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = q.answer.toLowerCase();
+                const icon = document.createElement('span');
+                icon.className = 'feedback-icon';
+
+                const possibleAnswers = [correctAnswer];
+                if(correctAnswer === "einfaches viereck") possibleAnswers.push("viereck");
+                if(correctAnswer === "gleichschenkliges trapez") possibleAnswers.push("gleichschenkligest trapez");
+
+                if (possibleAnswers.includes(userAnswer)) {
+                    updateScore(20);
+                    icon.classList.add('correct-icon');
+                } else {
+                    icon.classList.add('incorrect-icon');
+                    const solution = document.createElement('p');
+                    solution.style.color = 'var(--grey-text)';
+                    solution.innerHTML = `<i>Richtige Antwort: ${q.answer}</i>`;
+                    container.appendChild(solution);
+                }
+                container.appendChild(icon);
+                input.disabled = true;
+            });
+            document.getElementById('btn-ex3').disabled = true;
+            updateProgressBar();
+        }
+
+        // --- FINAL RESULTS & RESET ---
+        function showFinalResults() {
+            const resultsContainer = document.getElementById('final-results');
+            const titleEl = document.getElementById('final-title');
+            const scoreEl = document.getElementById('final-score-text');
+            const messageEl = document.getElementById('final-message');
+            
+            let title = "";
+            let message = "";
+            const maxPoints = 225;
+
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                localStorage.setItem('viereckeHighScore', highScore);
+                message = "Fantastisch! Du hast einen neuen Highscore aufgestellt!";
+            }
+
+            if (currentScore >= 200) {
+                title = "🥇 Viereck-Meister/in 🥇";
+            } else if (currentScore >= 150) {
+                title = "🥈 Geometrie-Kenner/in 🥈";
+            } else if (currentScore >= 100) {
+                title = "🥉 Formen-Fortgeschrittene/r 🥉";
+            } else {
+                title = "🌱 Grundlagen-Lerner/in 🌱";
+                 message += " Übung macht den Meister, versuch es gleich nochmal!";
+            }
+            
+            titleEl.textContent = title;
+            scoreEl.textContent = `Dein Ergebnis: ${currentScore} von ${maxPoints} Punkten.`;
+            messageEl.textContent = message;
+
+            resultsContainer.style.display = 'block';
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
